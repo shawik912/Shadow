@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Silent Heart of Kawuku</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lora (Serif) and Inter (Sans) Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900;400,700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Tailwind Configuration */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'page-text': '#333333', /* Near Black/Charcoal */
+                        'kawuku-accent': '#783A14', /* Deep, earthy Mahogany/Bronze */
+                        'kawuku-light': '#F5E6CC', /* Light beige for highlights */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Lora', 'serif'],
+                    }
+                }
+            }
+        }
+    </style>
+    <style>
+        /* Warm Sunset Gradient Background */
+        body {
+            font-family: 'Lora', serif;
+            color: #333333;
+            line-height: 1.8;
+            letter-spacing: 0.01em;
+            /* Deeper gradient for a more atmospheric feel */
+            background: linear-gradient(180deg, #fffbeb 0%, #fef3e5 40%, #fceacb 70%, #f8e1c6 100%);
+            min-height: 100vh;
+        }
+
+        /* Container for the text (the "Manuscript Page") */
+        .story-page {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.08);
+            border-radius: 1rem;
+            background-color: #fffaf0; /* Slightly whiter paper center */
+            margin-top: 4rem;
+            margin-bottom: 4rem;
+            padding: 4rem 2rem;
+        }
+
+        /* --- Story Text Fade-In (Smooth Scroll Reveal) --- */
+        .story-paragraph {
+            opacity: 0;
+            transform: translateY(1.5rem);
+            transition: opacity 2s ease-out, transform 2s ease-out; /* Slowed down to 2s for maximal emotion */
+        }
+        .story-paragraph.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Typewriter Effect for Title --- */
+        .typewriter-text {
+            overflow: hidden; 
+            white-space: nowrap;
+            border-right: .15em solid #783A14; 
+            animation: typing 3s steps(30, end) forwards,
+                       blink-caret .75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #783A14; }
+        }
+        
+        /* --- Scroll Progress Bar --- */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: #783A14;
+            width: 0%;
+            z-index: 1000;
+        }
+        
+        /* Overlay for Initial Music Interaction - Simplified for clarity and responsiveness */
+        .music-overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px); 
+            transition: opacity 0.7s ease-in-out;
+            /* Ensure it covers everything on all devices */
+        }
+    </style>
+</head>
+<body>
+    <!-- Reading Progress Bar -->
+    <div id="scroll-progress"></div>
+
+    <!-- 1. Background Audio Element -->
+    <audio id="background-music" loop preload="auto" muted>
+        <!-- WARNING: This file path is a placeholder. For the audio to play, you MUST replace 'wansala.mp3' with a real, accessible audio file URL. -->
+        <source src="wansala.mp3" type="audio/mpeg"> 
+        Your browser does not support the audio element.
+    </audio>
+    
+    <!-- 2. Music Control Button (Fixed position) -->
+    <button id="music-toggle" 
+            aria-label="Toggle Background Music"
+            class="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex items-center p-3 rounded-full bg-kawuku-accent text-white shadow-xl transition-all duration-300 hover:scale-105">
+        <svg id="icon-volume-up" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 hidden">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <svg id="icon-volume-off" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+    </button>
+    
+    <!-- 3. Music Interaction Overlay - Simplified and responsive -->
+    <div id="music-overlay" class="music-overlay fixed inset-0 flex flex-col justify-center items-center z-[2000] text-white p-6">
+        <h3 class="text-3xl md:text-5xl font-extrabold font-serif mb-4 text-kawuku-light italic text-center">
+            why abby😭
+        </h3>
+        <p class="mb-10 text-lg md:text-xl font-sans text-center max-w-sm">
+            Tap to begin reading and unmute the atmosphere.
+        </p>
+        <button id="start-story-button"
+                class="px-12 py-5 rounded-full bg-kawuku-accent text-white font-extrabold text-xl shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-kawuku-light">
+            ENTER
+        </button>
+        <p class="mt-4 text-sm opacity-50">
+            (Background music is playing silently.)
+        </p>
+    </div>
+
+    <!-- 4. Main Story Container -->
+    <main class="max-w-4xl mx-auto px-4">
+        
+        <!-- The "Manuscript Page" container -->
+        <div class="story-page max-w-3xl mx-auto">
+            
+            <!-- Header: Title with Typing Effect -->
+            <header class="text-center mb-16 md:mb-24">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-kawuku-accent tracking-wider typewriter-text mx-auto font-sans uppercase max-w-full">
+                    why abby 😭😭
+                </h1>
+                <div class="h-1 w-24 bg-kawuku-accent mx-auto mt-6 rounded-full opacity-70"></div>
+            </header>
+
+            <!-- Story Content: Complete Text with Name Changes -->
+            <section class="space-y-10 text-xl md:text-2xl font-light">
+                
+                <p id="p1" class="story-paragraph text-page-text">
+                    In the quiet village of *Kawuku*, nestled between the green hills and the soft whispers of Lake Victoria's breeze, lived a boy named *Shawik*. He wasn’t the richest, nor the loudest, but he had a heart that beat for one person — *Abby*.
+                </p>
+
+                <p id="p2" class="story-paragraph text-page-text">
+                    Shawik had loved Abby for as long as he could remember. From childhood games under the mango trees to teenage walks along the dusty roads, he saw her as his light — the one soul who made his world feel alive.
+                </p>
+
+                <p id="p3" class="story-paragraph text-page-text">
+                    He watched her grow into beauty — her laughter like music, her eyes full of dreams. And though his heart was often shy, it spoke silently every day in the small things: waiting for her after church, helping her carry water, or bringing her roasted maize when she studied late.
+                </p>
+
+                <p id="p4" class="story-paragraph text-center font-medium text-kawuku-accent pt-8">
+                    But Shawik’s love was a silent song, and Abby… Abby was chasing a louder melody.
+                </p>
+
+                <p id="p5" class="story-paragraph text-page-text">
+                    As they grew, Abby became the village star. She caught the attention of boys who spoke louder, dressed sharper, and laughed bolder. And among them were *Shawik’s own friends* — boys he trusted, laughed with, and stood by.
+                </p>
+
+                <p id="p6" class="story-paragraph text-page-text">
+                    At first, Shawik tried to ignore the signs. The long hugs she gave his friends, the late-night whispers when he wasn’t around, and the way she’d suddenly forget to reply to his messages.
+                </p>
+
+                <p id="p7" class="story-paragraph text-page-text font-semibold pt-8">
+                    But nothing could prepare him for what came next.
+                </p>
+                
+                <p id="p8" class="story-paragraph text-center text-3xl font-bold text-red-700/80 leading-snug">
+                    One quiet evening, under the jackfruit tree near the trading center, Shawik saw her — *cuddling in the arms of his friend, Joseph*.
+                </p>
+
+                <p id="p9" class="story-paragraph text-page-text">
+                    She wasn’t smiling out of politeness. No. She looked at Joseph the way Shawik had always dreamed she would look at him — with love.
+                </p>
+
+                <p id="p10" class="story-paragraph text-page-text italic pt-8">
+                    He stood frozen. His breath caught. The world didn’t crash; it simply… went quiet.
+                </p>
+                
+                <p id="p11" class="story-paragraph text-page-text">
+                    Days passed. Then weeks. Abby no longer looked Shawik in the eye. She laughed louder around his friends. Soon, she wasn’t just seeing Joseph. She began dating *Joseph’s best friend*, too — *Derrick*. The whispers grew louder.
+                </p>
+
+                <p id="p12" class="story-paragraph text-page-text">
+                    People in the village started talking. But what hurt the most wasn’t the betrayal. It was the words that came from Abby herself.
+                </p>
+                
+                <p id="p13" class="story-paragraph text-center text-xl text-kawuku-accent italic">
+                    “She’s saying you were never her type,” someone whispered to Shawik.
+                </p>
+
+                <p id="p14" class="story-paragraph text-center text-xl text-kawuku-accent italic">
+                    “She says you’re too soft. That you’re not man enough.”
+                </p>
+
+                <p id="p15" class="story-paragraph text-page-text pt-8">
+                    Shawik smiled a broken smile. Not because he was okay, but because he didn’t know how else to hide the shattering inside.
+                </p>
+
+                <p id="p16" class="story-paragraph text-page-text">
+                    Abby had started *mocking him behind his back*, saying, “He was always so clingy,” or “He thought love was enough.”
+                </p>
+
+                <p id="p17" class="story-paragraph text-page-text font-medium text-center pt-8">
+                    But it was enough for Shawik. He had loved her with a kind of purity the world had forgotten — a quiet, steady love that didn’t ask for anything but her happiness.
+                </p>
+
+                <p id="p18" class="story-paragraph text-page-text">
+                    One day, without warning, *Abby left Kawuku*. Some say she went to Kampala to start a new life. Others say she ran away with Derrick. But for Shawik, she simply vanished, leaving behind a ghost in his chest that refused to die.
+                </p>
+
+                <p id="p19" class="story-paragraph text-page-text font-light pt-12">
+                    Months have passed. Now, it’s *December*, and the winds in Kawuku have changed. The village is full of songs, weddings, and Christmas lights. But Shawik walks the same path, alone. He still passes the jackfruit tree. He still glances at the empty house where Abby used to live.
+                </p>
+
+                <p id="p20" class="story-paragraph text-center italic text-page-text/70">
+                    People say, “Move on.” They say, “You’ll find someone better.”
+                </p>
+                
+                <div class="h-8"></div>
+
+                <p id="p21" class="story-paragraph text-page-text font-bold text-2xl">
+                    But they don’t see what he carries. They don’t feel the weight of memories — her laughter echoing in his mind, the way her eyes used to light up when she saw him (before they dulled). They don’t know how it feels to *be replaced by the people you trusted most*.
+                </p>
+
+                <p id="p22" class="story-paragraph text-page-text font-bold text-center pt-12">
+                    He doesn’t hate her. That’s the cruel part. He still loves her in the quiet way he always did.
+                </p>
+
+                <p id="p23" class="story-paragraph text-page-text">
+                    Love, for Shawik, wasn’t something that came and went. It was something he planted — deep, with roots strong enough to survive storms. But Abby… she was the storm.
+                </p>
+
+                <p id="p24" class="story-paragraph text-page-text pt-8">
+                    And now, he lives in the ruins of what could’ve been — piecing together his heart with trembling hands.
+                </p>
+
+                <p id="p25" class="story-paragraph text-center font-semibold text-kawuku-accent pt-12">
+                    Sometimes at night, under the moonlit skies of Kawuku, Shawik still wonders:
+                </p>
+                
+                <p id="p26" class="story-paragraph text-center text-4xl font-extrabold text-page-text/90">
+                    “Did she ever love me? Even for a moment?”
+                </p>
+
+                <p id="p27" class="story-paragraph text-center italic text-page-text/70 pt-8">
+                    No one answers. Only the crickets sing, and the wind carries her name.
+                </p>
+                
+                <p id="p28" class="story-paragraph text-center text-5xl font-extrabold text-kawuku-accent leading-snug">
+                    "Abby..."
+                </p>
+
+                <p id="p29" class="story-paragraph text-center italic text-page-text/70 pt-8">
+                    He whispers it like a prayer.  
+                    Like a wound.  
+                    Like a memory that refuses to fade.
+                </p>
+
+                <p id="p30" class="story-paragraph text-center font-medium pt-12">
+                    But maybe, one day, Kawuku will give him a new beginning.  
+                    Maybe someone will see the boy with the broken heart and offer him something real.
+                </p>
+                
+                <p id="p31" class="story-paragraph text-center font-extrabold text-kawuku-accent text-3xl pt-8 pb-12">
+                    But until then, he walks alone — loving silently, hurting quietly…  
+                    And remembering the girl who never looked back.
+                </p>
+
+            </section>
+        </div>
+        <!-- Final spacer -->
+        <div class="h-64"></div> 
+    </main>
+
+
+    <!-- 5. JavaScript Logic -->
+    <script>
+        // --- Music Control Logic ---
+        const audio = document.getElementById('background-music');
+        const toggleButton = document.getElementById('music-toggle');
+        const iconVolumeUp = document.getElementById('icon-volume-up');
+        const iconVolumeOff = document.getElementById('icon-volume-off');
+        const overlay = document.getElementById('music-overlay');
+        const startButton = document.getElementById('start-story-button');
+
+        let isMuted = true;
+        let isAudioPlaying = false; 
+
+        const setIcon = (muted) => {
+            iconVolumeUp.classList.toggle('hidden', muted);
+            iconVolumeOff.classList.toggle('hidden', !muted);
+        };
+
+        const toggleMusic = () => {
+            if (isAudioPlaying) {
+                audio.muted = !audio.muted;
+                isMuted = audio.muted;
+                setIcon(isMuted);
+            } else {
+                // If not yet playing (safety net)
+                startAudioAndHideOverlay();
+            }
+        };
+
+        const startAudioAndHideOverlay = () => {
+            audio.load();
+            audio.volume = 0.4;
+            audio.muted = false; // Attempt to unmute immediately on user interaction
+            isMuted = false;
+
+            audio.play()
+                .then(() => {
+                    isAudioPlaying = true;
+                    // Fade out the overlay
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.style.display = 'none', 700); // Hide after transition
+                    setIcon(isMuted);
+                })
+                .catch(e => {
+                    console.error("Audio playback failed even after user interaction:", e);
+                    audio.muted = true;
+                    isMuted = true;
+                    setIcon(isMuted);
+                    // Hide overlay even if play failed, to start reading
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.style.display = 'none', 700);
+                });
+        };
+
+        // --- Event Listeners ---
+        toggleButton.addEventListener('click', toggleMusic);
+        startButton.addEventListener('click', startAudioAndHideOverlay);
+
+        // Crucial: Start the music muted as soon as the window loads to satisfy the "autoplay" requirement
+        window.addEventListener('load', () => {
+             audio.muted = true;
+             audio.volume = 0.4;
+             audio.play().then(() => {
+                 isAudioPlaying = true;
+             }).catch(e => {
+                 console.warn("Muted autoplay failed. Music awaits user click on the overlay.");
+             });
+             setIcon(isMuted); 
+        });
+
+
+        // --- Scroll Progress Indicator ---
+        const progressBar = document.getElementById('scroll-progress');
+        
+        const updateProgressBar = () => {
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            const scrollTop = document.documentElement.scrollTop;
+            const totalScrollable = scrollHeight - clientHeight;
+            const scrolledPercentage = (scrollTop / totalScrollable) * 100;
+
+            if (totalScrollable > 0) {
+                progressBar.style.width = scrolledPercentage + '%';
+            }
+        };
+
+        // --- Scroll Reveal Logic (Intersection Observer) ---
+        
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.05 
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        const storyParagraphs = document.querySelectorAll('.story-paragraph');
+        storyParagraphs.forEach(paragraph => {
+            observer.observe(paragraph);
+        });
+        
+        window.addEventListener('scroll', updateProgressBar);
+        window.addEventListener('load', updateProgressBar);
+        
+        // --- Firebase Compliance (Empty, but necessary for environment) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    </script>
+
+</body>
+</html>
+
