@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Silent Heart of Kawuku</title>
+    <title>Why Abby 😭</title> <!-- Updated title -->
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lora (Serif) and Inter (Sans) Fonts -->
@@ -125,7 +125,7 @@
     <!-- 3. Music Interaction Overlay - Simplified and responsive -->
     <div id="music-overlay" class="music-overlay fixed inset-0 flex flex-col justify-center items-center z-[2000] text-white p-6">
         <h3 class="text-3xl md:text-5xl font-extrabold font-serif mb-4 text-kawuku-light italic text-center">
-            why abby 😭
+            Why Abby 😭
         </h3>
         <p class="mb-10 text-lg md:text-xl font-sans text-center max-w-sm">
             Tap to begin reading and unmute the atmosphere.
@@ -135,7 +135,7 @@
             ENTER
         </button>
         <p class="mt-4 text-sm opacity-50">
-            (Background music is playing silently.)
+            (Background music will start upon entering.)
         </p>
     </div>
 
@@ -148,7 +148,7 @@
             <!-- Header: Title with Typing Effect -->
             <header class="text-center mb-16 md:mb-24">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-kawuku-accent tracking-wider typewriter-text mx-auto font-sans uppercase max-w-full">
-                    Why abby😭
+                    Why Abby 😭
                 </h1>
                 <div class="h-1 w-24 bg-kawuku-accent mx-auto mt-6 rounded-full opacity-70"></div>
             </header>
@@ -217,7 +217,7 @@
                 </p>
 
                 <p id="p16" class="story-paragraph text-page-text">
-                    Abby had started *mocking him behind his back*, saying, “He was always so clingy,” or “He thought love was enough.”
+                    Abby had started *mocking him behind her back*, saying, “He was always so clingy,” or “He thought love was enough.”
                 </p>
 
                 <p id="p17" class="story-paragraph text-page-text font-medium text-center pt-8">
@@ -317,31 +317,36 @@
                 isMuted = audio.muted;
                 setIcon(isMuted);
             } else {
-                // If not yet playing (safety net)
+                // If audio isn't playing, try to start it on this click
                 startAudioAndHideOverlay();
             }
         };
 
         const startAudioAndHideOverlay = () => {
+            // 1. Load the audio file (needed for some mobile browsers)
             audio.load();
+            
+            // 2. Set volume and unmute
             audio.volume = 0.4;
-            audio.muted = false; // Attempt to unmute immediately on user interaction
+            audio.muted = false; 
             isMuted = false;
 
+            // 3. Start playback, which requires user interaction
             audio.play()
                 .then(() => {
                     isAudioPlaying = true;
-                    // Fade out the overlay
+                    // 4. Fade out the overlay
                     overlay.style.opacity = '0';
                     setTimeout(() => overlay.style.display = 'none', 700); // Hide after transition
                     setIcon(isMuted);
                 })
                 .catch(e => {
-                    console.error("Audio playback failed even after user interaction:", e);
+                    console.error("Audio playback failed upon user interaction:", e);
+                    // If play fails (e.g., resource issue), ensure buttons/icons reflect this state
                     audio.muted = true;
                     isMuted = true;
                     setIcon(isMuted);
-                    // Hide overlay even if play failed, to start reading
+                    // Hide overlay anyway to let the user read
                     overlay.style.opacity = '0';
                     setTimeout(() => overlay.style.display = 'none', 700);
                 });
@@ -351,16 +356,15 @@
         toggleButton.addEventListener('click', toggleMusic);
         startButton.addEventListener('click', startAudioAndHideOverlay);
 
-        // Crucial: Start the music muted as soon as the window loads to satisfy the "autoplay" requirement
+        // Ensures the state is correct on load without attempting to play
         window.addEventListener('load', () => {
-             audio.muted = true;
              audio.volume = 0.4;
-             audio.play().then(() => {
-                 isAudioPlaying = true;
-             }).catch(e => {
-                 console.warn("Muted autoplay failed. Music awaits user click on the overlay.");
-             });
-             setIcon(isMuted); 
+             audio.muted = true;
+             isMuted = true;
+             setIcon(isMuted);
+             
+             // Update progress bar
+             updateProgressBar(); 
         });
 
 
@@ -402,7 +406,6 @@
         });
         
         window.addEventListener('scroll', updateProgressBar);
-        window.addEventListener('load', updateProgressBar);
         
         // --- Firebase Compliance (Empty, but necessary for environment) ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
