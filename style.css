@@ -1,85 +1,244 @@
-body {
-  margin: 0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayWise - Digital Wallet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        .status-pill {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="pb-24">
 
-.game-canvas {
-  width: 100%;
-  height: 100vw;
-  max-width: 500px;
-  max-height:500px;
-  margin-left: auto;
-  margin-right: auto;
-}
+    <!-- Top Navigation -->
+    <nav class="sticky top-0 z-50 bg-white border-b px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <span class="font-bold text-xl tracking-tight text-gray-800">PayWise</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="relative text-gray-500">
+                <i class="fas fa-bell text-xl"></i>
+                <span class="absolute -top-1 -right-1 bg-red-500 w-2 h-2 rounded-full border-2 border-white"></span>
+            </button>
+            <div class="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold">
+                SE
+            </div>
+        </div>
+    </nav>
 
-.keys {
-  font-family: 'Lato', sans-serif;
-  text-align: center;
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  height: 200px;
-  margin: auto;
-}
+    <main class="max-w-md mx-auto p-4 space-y-6">
 
-.up {
-  position: relative;
-  top: -4px;
-}
+        <!-- Account Header -->
+        <section class="gradient-bg rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="opacity-80 text-sm font-medium">Available Balance</p>
+                <h1 class="text-4xl font-bold mt-1">UGX 320,100</h1>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-xs">Shawik Ephi</span>
+                    <span class="bg-green-400/30 text-green-100 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                        <i class="fas fa-check-circle text-[10px]"></i> Verified
+                    </span>
+                </div>
+            </div>
+            <!-- Decorative circle -->
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full"></div>
+        </section>
 
-.chevron::before {
-  border-style: solid;
-  border-width: 8px 8px 0 0;
-  content: '';
-  display: inline-block;
-  height: 20px;
-  width: 20px;
-  top: -10px;
-  position: relative;
-  transform: rotate(-45deg);
-}
+        <!-- Quick Actions Grid -->
+        <section class="grid grid-cols-4 gap-4">
+            <button class="flex flex-col items-center gap-2">
+                <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">Top Up</span>
+            </button>
+            <button class="flex flex-col items-center gap-2">
+                <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">Bills</span>
+            </button>
+            <button class="flex flex-col items-center gap-2">
+                <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">Airtime</span>
+            </button>
+            <button class="flex flex-col items-center gap-2">
+                <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border flex items-center justify-center text-indigo-600">
+                    <i class="fas fa-ellipsis-h"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">More</span>
+            </button>
+        </section>
 
-.chevron.down::before {
-  transform: rotate(135deg);
-  top: -22px;
-}
+        <!-- Give to MVP Section -->
+        <section class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-bold text-gray-800">Transfer Funds</h2>
+                <i class="fas fa-info-circle text-gray-300"></i>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900 text-sm">MVP Account</p>
+                            <p class="text-xs text-gray-500">Corporate Beneficiary</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-400">Limit</p>
+                        <p class="text-xs font-semibold text-gray-700">Unlimited</p>
+                    </div>
+                </div>
 
-.chevron.right::before {
-  transform: rotate(45deg);
-  top: -18px;
-  left: -5px;
-}
+                <div class="relative">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">Amount to Transfer</label>
+                    <div class="flex items-center border-b-2 border-indigo-100 focus-within:border-indigo-600 transition-colors py-2">
+                        <span class="font-bold text-gray-400 mr-2">UGX</span>
+                        <input type="number" value="320100" class="w-full bg-transparent text-2xl font-bold text-gray-800 outline-none" placeholder="0.00">
+                    </div>
+                </div>
 
-.chevron.left::before {
-  transform: rotate(225deg);
-  top: -18px;
-  left: 5px;
-}
+                <button id="transferBtn" class="w-full gradient-bg text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+                    Give to MVP <i class="fas fa-paper-plane text-sm"></i>
+                </button>
+            </div>
+        </section>
 
-.arr {
-  cursor: pointer;
-  width: 70px;
-  height: 70px;
-  text-align: center;
-  line-height: 100px;
-  background: gray;
-  color: white;
-  font-size: 50px;
-  border-right: 10px solid #ccc;
-  border-bottom: 10px solid #ccc;
-  border-left: 10px solid #ddd;
-  border-top: 10px solid #eee;
-  display: inline-block;
-  margin: 5px;
-  transition: all .05s linear;
-  user-select: none;
-}
+        <!-- Recent Transactions -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="font-bold text-gray-800">Recent Activity</h2>
+                <button class="text-indigo-600 text-xs font-bold">View All</button>
+            </div>
 
-.arr:active {
-  background: #555;
-}
+            <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <!-- Tx 1 -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">Deposit received</p>
+                            <p class="text-xs text-gray-400">Today, 10:45 AM</p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-green-600">+50,000</p>
+                </div>
+                <!-- Tx 2 -->
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">Supermarket</p>
+                            <p class="text-xs text-gray-400">Yesterday, 06:20 PM</p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-gray-800">-12,400</p>
+                </div>
+            </div>
+        </section>
 
-#game-container {
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(220, 220, 220, 0.6);
-}
+        <!-- Terms and Conditions -->
+        <section class="bg-gray-100 rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-3 text-gray-600">
+                <i class="fas fa-gavel text-sm"></i>
+                <h3 class="text-xs font-bold uppercase tracking-widest">PayWise Terms</h3>
+            </div>
+            <div class="text-[11px] text-gray-500 space-y-2 leading-relaxed">
+                <p>1. <strong>Transfer Finality:</strong> All transfers to MVP accounts are processed instantly and cannot be reversed once authorized by Shawik Ephi.</p>
+                <p>2. <strong>Fees:</strong> A standard network processing fee may apply to UGX transactions over 1,000,000.</p>
+                <p>3. <strong>Security:</strong> Keep your PayWise PIN confidential. We will never ask for your password via phone or email.</p>
+            </div>
+            <button class="mt-4 w-full py-2 border border-gray-300 rounded-lg text-[11px] font-bold text-gray-600 hover:bg-white transition-colors">
+                READ FULL AGREEMENT
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t px-6 py-3 flex items-center justify-between max-w-md mx-auto shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <button class="flex flex-col items-center gap-1 text-indigo-600">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] font-bold">Home</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-wallet text-xl"></i>
+            <span class="text-[10px] font-bold">Wallet</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-chart-pie text-xl"></i>
+            <span class="text-[10px] font-bold">Stats</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-cog text-xl"></i>
+            <span class="text-[10px] font-bold">Settings</span>
+        </button>
+    </div>
+
+    <!-- Feedback Toast (Hidden by default) -->
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full text-sm font-medium shadow-2xl opacity-0 transition-opacity pointer-events-none">
+        Transfer to MVP successful!
+    </div>
+
+    <script>
+        const btn = document.getElementById('transferBtn');
+        const toast = document.getElementById('toast');
+
+        btn.addEventListener('click', () => {
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = 'Give to MVP <i class="fas fa-check"></i>';
+                btn.classList.replace('gradient-bg', 'bg-green-500');
+                
+                toast.classList.remove('opacity-0');
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                    // Reset after some time
+                    setTimeout(() => {
+                        btn.innerHTML = 'Give to MVP <i class="fas fa-paper-plane text-sm"></i>';
+                        btn.classList.replace('bg-green-500', 'gradient-bg');
+                        btn.disabled = false;
+                    }, 2000);
+                }, 3000);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
+

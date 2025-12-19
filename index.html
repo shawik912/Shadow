@@ -1,417 +1,428 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Why Abby 😭</title> <!-- Updated title -->
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Lora (Serif) and Inter (Sans) Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900;400,700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-    <style>
-        /* Custom Tailwind Configuration */
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>Verified Trading Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script id="tailwind-config">
         tailwind.config = {
+            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        'page-text': '#333333', /* Near Black/Charcoal */
-                        'kawuku-accent': '#783A14', /* Deep, earthy Mahogany/Bronze */
-                        'kawuku-light': '#F5E6CC', /* Light beige for highlights */
+                        "primary": "#D4AF37",
+                        "background-light": "#F2F2F7",
+                        "background-dark": "#050505",
+                        "card-dark": "#121212",
+                        "trade-up": "#34C759",
+                        "trade-down": "#FF3B30",
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Lora', 'serif'],
-                    }
-                }
-            }
+                    fontFamily: { "sans": ["Inter", "sans-serif"] },
+                },
+            },
         }
-    </style>
+    </script>
     <style>
-        /* Warm Sunset Gradient Background */
-        body {
-            font-family: 'Lora', serif;
-            color: #333333;
-            line-height: 1.8;
-            letter-spacing: 0.01em;
-            /* Deeper gradient for a more atmospheric feel */
-            background: linear-gradient(180deg, #fffbeb 0%, #fef3e5 40%, #fceacb 70%, #f8e1c6 100%);
-            min-height: 100vh;
-        }
-
-        /* Container for the text (the "Manuscript Page") */
-        .story-page {
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.08);
-            border-radius: 1rem;
-            background-color: #fffaf0; /* Slightly whiter paper center */
-            margin-top: 4rem;
-            margin-bottom: 4rem;
-            padding: 4rem 2rem;
-        }
-
-        /* --- Story Text Fade-In (Smooth Scroll Reveal) --- */
-        .story-paragraph {
-            opacity: 0;
-            transform: translateY(1.5rem);
-            transition: opacity 2s ease-out, transform 2s ease-out; /* Slowed down to 2s for maximal emotion */
-        }
-        .story-paragraph.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* --- Typewriter Effect for Title --- */
-        .typewriter-text {
-            overflow: hidden; 
-            white-space: nowrap;
-            border-right: .15em solid #783A14; 
-            animation: typing 3s steps(30, end) forwards,
-                       blink-caret .75s step-end infinite;
-        }
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: #783A14; }
-        }
+        body { -webkit-font-smoothing: antialiased; letter-spacing: -0.02em; }
+        .glass-header { background: rgba(242, 242, 247, 0.85); backdrop-filter: saturate(180%) blur(25px); }
+        .dark .glass-header { background: rgba(5, 5, 5, 0.8); }
+        .text-micro { font-size: 0.6rem; }
+        .text-tiny { font-size: 0.7rem; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
         
-        /* --- Scroll Progress Bar --- */
-        #scroll-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 5px;
-            background: #783A14;
-            width: 0%;
-            z-index: 1000;
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
         }
+        .animate-pulse-soft { animation: pulse-soft 3s infinite ease-in-out; }
         
-        /* Overlay for Initial Music Interaction - Simplified for clarity and responsiveness */
-        .music-overlay {
-            background-color: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px); 
-            transition: opacity 0.7s ease-in-out;
-            /* Ensure it covers everything on all devices */
+        @keyframes flash-green {
+            0% { color: inherit; }
+            50% { color: #34C759; }
+            100% { color: inherit; }
         }
+        .value-flash { animation: flash-green 0.5s ease-out; }
+
+        .candle-up { width: 4px; border-radius: 1px; background: #34C759; }
+        .candle-down { width: 4px; border-radius: 1px; background: #FF3B30; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .view-hidden { display: none; }
     </style>
 </head>
-<body>
-    <!-- Reading Progress Bar -->
-    <div id="scroll-progress"></div>
+<body class="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-slate-100 min-h-screen pb-24 overflow-x-hidden">
 
-    <!-- 1. Background Audio Element -->
-    <audio id="background-music" loop preload="auto" muted>
-        <!-- WARNING: This file path is a placeholder. For the audio to play, you MUST replace 'wansala.mp3' with a real, accessible audio file URL. -->
-        <source src="wansala.mp3" type="audio/mpeg"> 
-        Your browser does not support the audio element.
-    </audio>
-    
-    <!-- 2. Music Control Button (Fixed position) -->
-    <button id="music-toggle" 
-            aria-label="Toggle Background Music"
-            class="fixed top-4 right-4 md:top-6 md:right-6 z-50 flex items-center p-3 rounded-full bg-kawuku-accent text-white shadow-xl transition-all duration-300 hover:scale-105">
-        <svg id="icon-volume-up" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 hidden">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-        <svg id="icon-volume-off" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <line x1="23" y1="9" x2="17" y2="15"></line>
-            <line x1="17" y1="9" x2="23" y2="15"></line>
-        </svg>
-    </button>
-    
-    <!-- 3. Music Interaction Overlay - Simplified and responsive -->
-    <div id="music-overlay" class="music-overlay fixed inset-0 flex flex-col justify-center items-center z-[2000] text-white p-6">
-        <h3 class="text-3xl md:text-5xl font-extrabold font-serif mb-4 text-kawuku-light italic text-center">
-            Why Abby 😭
-        </h3>
-        <p class="mb-10 text-lg md:text-xl font-sans text-center max-w-sm">
-            Tap to begin reading and unmute the atmosphere.
-        </p>
-        <button id="start-story-button"
-                class="px-12 py-5 rounded-full bg-kawuku-accent text-white font-extrabold text-xl shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-kawuku-light">
-            ENTER
-        </button>
-        <p class="mt-4 text-sm opacity-50">
-            (Background music will start upon entering.)
-        </p>
-    </div>
-
-    <!-- 4. Main Story Container -->
-    <main class="max-w-4xl mx-auto px-4">
-        
-        <!-- The "Manuscript Page" container -->
-        <div class="story-page max-w-3xl mx-auto">
-            
-            <!-- Header: Title with Typing Effect -->
-            <header class="text-center mb-16 md:mb-24">
-                <h1 class="text-4xl md:text-5xl font-extrabold text-kawuku-accent tracking-wider typewriter-text mx-auto font-sans uppercase max-w-full">
-                    Why Abby 😭
-                </h1>
-                <div class="h-1 w-24 bg-kawuku-accent mx-auto mt-6 rounded-full opacity-70"></div>
-            </header>
-
-            <!-- Story Content: Complete Text with Name Changes -->
-            <section class="space-y-10 text-xl md:text-2xl font-light">
-                
-                <p id="p1" class="story-paragraph text-page-text">
-                    In the quiet village of *Kawuku*, nestled between the green hills and the soft whispers of Lake Victoria's breeze, lived a boy named *Shawik*. He wasn’t the richest, nor the loudest, but he had a heart that beat for one person — *Abby*.
-                </p>
-
-                <p id="p2" class="story-paragraph text-page-text">
-                    Shawik had loved Abby for as long as he could remember. From childhood games under the mango trees to teenage walks along the dusty roads, he saw her as his light — the one soul who made his world feel alive.
-                </p>
-
-                <p id="p3" class="story-paragraph text-page-text">
-                    He watched her grow into beauty — her laughter like music, her eyes full of dreams. And though his heart was often shy, it spoke silently every day in the small things: waiting for her after church, helping her carry water, or bringing her roasted maize when she studied late.
-                </p>
-
-                <p id="p4" class="story-paragraph text-center font-medium text-kawuku-accent pt-8">
-                    But Shawik’s love was a silent song, and Abby… Abby was chasing a louder melody.
-                </p>
-
-                <p id="p5" class="story-paragraph text-page-text">
-                    As they grew, Abby became the village star. She caught the attention of boys who spoke louder, dressed sharper, and laughed bolder. And among them were *Shawik’s own friends* — boys he trusted, laughed with, and stood by.
-                </p>
-
-                <p id="p6" class="story-paragraph text-page-text">
-                    At first, Shawik tried to ignore the signs. The long hugs she gave his friends, the late-night whispers when he wasn’t around, and the way she’d suddenly forget to reply to his messages.
-                </p>
-
-                <p id="p7" class="story-paragraph text-page-text font-semibold pt-8">
-                    But nothing could prepare him for what came next.
-                </p>
-                
-                <p id="p8" class="story-paragraph text-center text-3xl font-bold text-red-700/80 leading-snug">
-                    One quiet evening, under the jackfruit tree near the trading center, Shawik saw her — *cuddling in the arms of his friend, Joseph*.
-                </p>
-
-                <p id="p9" class="story-paragraph text-page-text">
-                    She wasn’t smiling out of politeness. No. She looked at Joseph the way Shawik had always dreamed she would look at him — with love.
-                </p>
-
-                <p id="p10" class="story-paragraph text-page-text italic pt-8">
-                    He stood frozen. His breath caught. The world didn’t crash; it simply… went quiet.
-                </p>
-                
-                <p id="p11" class="story-paragraph text-page-text">
-                    Days passed. Then weeks. Abby no longer looked Shawik in the eye. She laughed louder around his friends. Soon, she wasn’t just seeing Joseph. She began dating *Joseph’s best friend*, too — *Derrick*. The whispers grew louder.
-                </p>
-
-                <p id="p12" class="story-paragraph text-page-text">
-                    People in the village started talking. But what hurt the most wasn’t the betrayal. It was the words that came from Abby herself.
-                </p>
-                
-                <p id="p13" class="story-paragraph text-center text-xl text-kawuku-accent italic">
-                    “She’s saying you were never her type,” someone whispered to Shawik.
-                </p>
-
-                <p id="p14" class="story-paragraph text-center text-xl text-kawuku-accent italic">
-                    “She says you’re too soft. That you’re not man enough.”
-                </p>
-
-                <p id="p15" class="story-paragraph text-page-text pt-8">
-                    Shawik smiled a broken smile. Not because he was okay, but because he didn’t know how else to hide the shattering inside.
-                </p>
-
-                <p id="p16" class="story-paragraph text-page-text">
-                    Abby had started *mocking him behind her back*, saying, “He was always so clingy,” or “He thought love was enough.”
-                </p>
-
-                <p id="p17" class="story-paragraph text-page-text font-medium text-center pt-8">
-                    But it was enough for Shawik. He had loved her with a kind of purity the world had forgotten — a quiet, steady love that didn’t ask for anything but her happiness.
-                </p>
-
-                <p id="p18" class="story-paragraph text-page-text">
-                    One day, without warning, *Abby left Kawuku*. Some say she went to Kampala to start a new life. Others say she ran away with Derrick. But for Shawik, she simply vanished, leaving behind a ghost in his chest that refused to die.
-                </p>
-
-                <p id="p19" class="story-paragraph text-page-text font-light pt-12">
-                    Months have passed. Now, it’s *December*, and the winds in Kawuku have changed. The village is full of songs, weddings, and Christmas lights. But Shawik walks the same path, alone. He still passes the jackfruit tree. He still glances at the empty house where Abby used to live.
-                </p>
-
-                <p id="p20" class="story-paragraph text-center italic text-page-text/70">
-                    People say, “Move on.” They say, “You’ll find someone better.”
-                </p>
-                
-                <div class="h-8"></div>
-
-                <p id="p21" class="story-paragraph text-page-text font-bold text-2xl">
-                    But they don’t see what he carries. They don’t feel the weight of memories — her laughter echoing in his mind, the way her eyes used to light up when she saw him (before they dulled). They don’t know how it feels to *be replaced by the people you trusted most*.
-                </p>
-
-                <p id="p22" class="story-paragraph text-page-text font-bold text-center pt-12">
-                    He doesn’t hate her. That’s the cruel part. He still loves her in the quiet way he always did.
-                </p>
-
-                <p id="p23" class="story-paragraph text-page-text">
-                    Love, for Shawik, wasn’t something that came and went. It was something he planted — deep, with roots strong enough to survive storms. But Abby… she was the storm.
-                </p>
-
-                <p id="p24" class="story-paragraph text-page-text pt-8">
-                    And now, he lives in the ruins of what could’ve been — piecing together his heart with trembling hands.
-                </p>
-
-                <p id="p25" class="story-paragraph text-center font-semibold text-kawuku-accent pt-12">
-                    Sometimes at night, under the moonlit skies of Kawuku, Shawik still wonders:
-                </p>
-                
-                <p id="p26" class="story-paragraph text-center text-4xl font-extrabold text-page-text/90">
-                    “Did she ever love me? Even for a moment?”
-                </p>
-
-                <p id="p27" class="story-paragraph text-center italic text-page-text/70 pt-8">
-                    No one answers. Only the crickets sing, and the wind carries her name.
-                </p>
-                
-                <p id="p28" class="story-paragraph text-center text-5xl font-extrabold text-kawuku-accent leading-snug">
-                    "Abby..."
-                </p>
-
-                <p id="p29" class="story-paragraph text-center italic text-page-text/70 pt-8">
-                    He whispers it like a prayer.  
-                    Like a wound.  
-                    Like a memory that refuses to fade.
-                </p>
-
-                <p id="p30" class="story-paragraph text-center font-medium pt-12">
-                    But maybe, one day, Kawuku will give him a new beginning.  
-                    Maybe someone will see the boy with the broken heart and offer him something real.
-                </p>
-                
-                <p id="p31" class="story-paragraph text-center font-extrabold text-kawuku-accent text-3xl pt-8 pb-12">
-                    But until then, he walks alone — loving silently, hurting quietly…  
-                    And remembering the girl who never looked back.
-                </p>
-
-            </section>
+    <!-- Compact Glass Header -->
+    <header class="sticky top-0 z-50 glass-header border-b border-slate-200/50 dark:border-slate-800/50 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <div class="relative group">
+                <div class="size-10 rounded-full border-2 border-primary overflow-hidden bg-slate-100 shadow-sm">
+                    <img src="ing.png" alt="Profile" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=E&background=D4AF37&color=fff'">
+                </div>
+                <div class="absolute -bottom-0.5 -right-0.5 size-3.5 bg-blue-500 rounded-full border-2 border-background-light dark:border-background-dark flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white text-[9px] font-bold">check</span>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center gap-1">
+                    <h2 class="text-xs font-extrabold tracking-tight uppercase">Ephia Shawik</h2>
+                    <span class="material-symbols-outlined text-blue-500 text-[12px] fill-1">verified</span>
+                </div>
+                <p class="text-[8px] font-bold text-slate-400">ID: 884-067-229</p>
+            </div>
         </div>
-        <!-- Final spacer -->
-        <div class="h-64"></div> 
+        <div class="flex gap-1.5">
+            <button class="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black tracking-tighter active:scale-95 transition-all">TOP-UP</button>
+            <button class="bg-red-500/10 text-red-500 px-3 py-1.5 rounded-full text-[10px] font-black tracking-tighter active:scale-95 transition-all flex items-center gap-1">
+                <span>LOG OUT</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN HOME VIEW -->
+    <main id="home-view" class="px-4 pt-4 space-y-4">
+        
+        <!-- Today's Earnings Block (Animated & Live) -->
+        <section class="grid grid-cols-1 gap-3">
+            <div class="bg-white dark:bg-card-dark rounded-2xl p-4 border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+                <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-trade-up text-sm">monetization_on</span>
+                        <p class="text-micro font-bold text-slate-500 uppercase tracking-widest">Live Upgrade Pot</p>
+                    </div>
+                    <span id="live-status" class="text-[9px] font-bold bg-trade-up/10 text-trade-up px-2 py-0.5 rounded-full animate-pulse">RUNNING</span>
+                </div>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white flex items-baseline gap-1">
+                            $<span id="live-usd">359.00</span>
+                            <span class="text-xs font-medium text-slate-400">USD</span>
+                        </h2>
+                        <p class="text-xs font-bold text-trade-up mt-0.5">≈ <span id="live-ugx">1,284,143</span> UGX</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[8px] font-bold text-slate-400 uppercase">Rate: 3,577</p>
+                        <div class="h-1.5 w-20 bg-slate-100 dark:bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+                            <div id="live-progress" class="h-full bg-trade-up transition-all duration-700" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Feedback Overlay -->
+                <div id="stop-overlay" class="absolute inset-0 bg-primary/20 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                    <span class="text-black font-black text-xs bg-white px-4 py-2 rounded-full shadow-lg">CLAIMED!</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monthly Accumulation Block -->
+        <section class="bg-slate-900 dark:bg-card-dark rounded-2xl p-4 shadow-xl border border-white/5 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl rounded-full"></div>
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="text-micro font-bold text-slate-400 uppercase tracking-widest">Total Balance</p>
+                    <div class="flex items-center gap-1 text-trade-up">
+                        <span class="material-symbols-outlined text-[10px]">trending_up</span>
+                        <span class="text-[9px] font-black">+18.5%</span>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-1.5">
+                    <span class="text-xs font-bold text-primary">UGX</span>
+                    <h1 id="total-balance-ugx" class="text-2xl font-black text-white tracking-tighter">8,800,678</h1>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button class="flex-1 bg-white/10 hover:bg-white/20 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-white text-sm">payments</span>
+                        <span class="text-micro font-bold text-white uppercase tracking-tight">Withdraw</span>
+                    </button>
+                    <button class="flex-1 bg-primary py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined text-black text-sm">add_circle</span>
+                        <span class="text-micro font-bold text-black uppercase tracking-tight">Deposit</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Activity -->
+        <section class="bg-white dark:bg-card-dark rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">grid_view</span>
+                    <h3 class="text-tiny font-black uppercase tracking-widest">Market Activity</h3>
+                </div>
+                <div class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[8px] font-bold text-slate-500">USD/UGX LIVE</div>
+            </div>
+            <div class="p-4">
+                <div id="chart-container" class="flex items-end justify-between h-12 gap-1 mb-4 opacity-80">
+                    <div class="candle-up h-6"></div><div class="candle-up h-8"></div>
+                    <div class="candle-down h-4"></div><div class="candle-up h-10"></div>
+                    <div class="candle-up h-7"></div><div class="candle-down h-5"></div>
+                    <div class="candle-up h-9 animate-pulse-soft"></div>
+                    <div class="candle-down h-6"></div><div class="candle-up h-11"></div>
+                    <div class="candle-up h-8"></div><div class="candle-down h-4"></div>
+                    <div class="candle-up h-10"></div><div class="candle-up h-6"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[8px] font-bold text-slate-400 uppercase">Equity (USD)</span>
+                            <span class="text-[8px] font-bold text-trade-up">▲ 0.4%</span>
+                        </div>
+                        <p class="text-sm font-black tracking-tight">$2,450.00</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[8px] font-bold text-slate-400 uppercase">Valuation</span>
+                            <span class="text-[8px] font-bold text-trade-up">▲ 1.2%</span>
+                        </div>
+                        <p class="text-sm font-black tracking-tight">9.12M</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!-- TRADES VIEW -->
+    <main id="trades-view" class="px-4 pt-4 space-y-4 view-hidden">
+        <h2 class="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Live Markets</h2>
+        
+        <!-- Market Selection -->
+        <div id="market-list" class="space-y-3">
+            <!-- BTC/USD -->
+            <div class="bg-white dark:bg-card-dark rounded-2xl p-4 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500">
+                        <span class="material-symbols-outlined">currency_bitcoin</span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-black">BTC / USD</p>
+                        <p class="text-[10px] text-slate-400">Bitcoin</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p id="price-btc" class="text-sm font-black">$64,231.50</p>
+                    <p class="text-[10px] font-bold text-trade-up">+2.45%</p>
+                </div>
+            </div>
 
-    <!-- 5. JavaScript Logic -->
+            <!-- ETH/USD -->
+            <div class="bg-white dark:bg-card-dark rounded-2xl p-4 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
+                        <span class="material-symbols-outlined">eth</span>
+                    </div>
+                    <div>
+                        <p class="text-xs font-black">ETH / USD</p>
+                        <p class="text-[10px] text-slate-400">Ethereum</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p id="price-eth" class="text-sm font-black">$3,450.12</p>
+                    <p class="text-[10px] font-bold text-trade-down">-0.15%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trade Controls -->
+        <section class="bg-slate-900 rounded-2xl p-5 border border-white/5">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-micro font-bold text-slate-400 uppercase tracking-widest">Active Trade</p>
+                <span class="text-[9px] font-bold bg-primary/20 text-primary px-2 py-0.5 rounded-full">BTC READY</span>
+            </div>
+            <div class="flex items-center justify-center gap-4 py-4">
+                <button onclick="handleTrade('BUY')" class="flex-1 bg-trade-up py-4 rounded-2xl text-white font-black uppercase text-xs shadow-lg shadow-trade-up/20 active:scale-95 transition-all">Buy</button>
+                <button onclick="handleTrade('SELL')" class="flex-1 bg-trade-down py-4 rounded-2xl text-white font-black uppercase text-xs shadow-lg shadow-trade-down/20 active:scale-95 transition-all">Sell</button>
+            </div>
+            <p class="text-[8px] text-center text-slate-500 mt-2 font-bold uppercase">Standard 0.01% fee applies per transaction</p>
+        </section>
+
+        <!-- Notification Center -->
+        <div id="trade-notif" class="fixed top-20 left-4 right-4 z-[100] transform -translate-y-20 opacity-0 transition-all duration-300">
+            <div class="bg-slate-900 text-white p-3 rounded-xl border border-primary/30 flex items-center gap-3 shadow-2xl">
+                <span class="material-symbols-outlined text-primary">info</span>
+                <p id="notif-text" class="text-[10px] font-bold uppercase"></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-slate-200/50 dark:border-slate-800/50 pb-safe px-6">
+        <div class="flex justify-between items-center h-16">
+            <button onclick="switchView('home')" id="nav-home" class="flex flex-col items-center gap-1 text-primary transition-colors">
+                <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1">home</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Home</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-slate-400">
+                <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Wallet</span>
+            </button>
+            <!-- UPGRADE / STOP BUTTON -->
+            <button id="upgrade-btn" onclick="toggleUpgrade()" class="size-14 -mt-10 rounded-full bg-slate-900 dark:bg-primary text-white dark:text-black shadow-2xl flex items-center justify-center ring-4 ring-background-light dark:ring-background-dark active:scale-90 transition-all group overflow-hidden">
+                <span id="upgrade-icon" class="material-symbols-outlined text-[32px] group-hover:rotate-180 transition-transform duration-500">cached</span>
+            </button>
+            <button onclick="switchView('trades')" id="nav-trades" class="flex flex-col items-center gap-1 text-slate-400 transition-colors">
+                <span class="material-symbols-outlined text-[24px]">insights</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Trades</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-slate-400">
+                <span class="material-symbols-outlined text-[24px]">verified_user</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Safety</span>
+            </button>
+        </div>
+    </nav>
+
     <script>
-        // --- Music Control Logic ---
-        const audio = document.getElementById('background-music');
-        const toggleButton = document.getElementById('music-toggle');
-        const iconVolumeUp = document.getElementById('icon-volume-up');
-        const iconVolumeOff = document.getElementById('icon-volume-off');
-        const overlay = document.getElementById('music-overlay');
-        const startButton = document.getElementById('start-story-button');
+        // --- State Management ---
+        let currentBalanceUSD = 359.00;
+        let totalBalanceUGX = 8800678;
+        let isRunning = true;
+        const rate = 3577;
+        
+        const liveUsdEl = document.getElementById('live-usd');
+        const liveUgxEl = document.getElementById('live-ugx');
+        const totalUgxEl = document.getElementById('total-balance-ugx');
+        const progressBar = document.getElementById('live-progress');
+        const upgradeIcon = document.getElementById('upgrade-icon');
+        const liveStatus = document.getElementById('live-status');
+        const stopOverlay = document.getElementById('stop-overlay');
 
-        let isMuted = true;
-        let isAudioPlaying = false; 
+        // --- Live Earnings Logic ---
+        function updateEarnings() {
+            if (!isRunning) return;
 
-        const setIcon = (muted) => {
-            iconVolumeUp.classList.toggle('hidden', muted);
-            iconVolumeOff.classList.toggle('hidden', !muted);
-        };
-
-        const toggleMusic = () => {
-            if (isAudioPlaying) {
-                audio.muted = !audio.muted;
-                isMuted = audio.muted;
-                setIcon(isMuted);
-            } else {
-                // If audio isn't playing, try to start it on this click
-                startAudioAndHideOverlay();
-            }
-        };
-
-        const startAudioAndHideOverlay = () => {
-            // 1. Load the audio file (needed for some mobile browsers)
-            audio.load();
+            // Randomly fluctuate
+            const drift = Math.random() > 0.3 ? (Math.random() * 8) : (Math.random() * -3);
+            currentBalanceUSD += drift;
             
-            // 2. Set volume and unmute
-            audio.volume = 0.4;
-            audio.muted = false; 
-            isMuted = false;
+            // Hard bounds
+            if (currentBalanceUSD < 350) currentBalanceUSD = 350;
+            if (currentBalanceUSD > 1500) currentBalanceUSD = 1499;
 
-            // 3. Start playback, which requires user interaction
-            audio.play()
-                .then(() => {
-                    isAudioPlaying = true;
-                    // 4. Fade out the overlay
-                    overlay.style.opacity = '0';
-                    setTimeout(() => overlay.style.display = 'none', 700); // Hide after transition
-                    setIcon(isMuted);
-                })
-                .catch(e => {
-                    console.error("Audio playback failed upon user interaction:", e);
-                    // If play fails (e.g., resource issue), ensure buttons/icons reflect this state
-                    audio.muted = true;
-                    isMuted = true;
-                    setIcon(isMuted);
-                    // Hide overlay anyway to let the user read
-                    overlay.style.opacity = '0';
-                    setTimeout(() => overlay.style.display = 'none', 700);
-                });
-        };
+            renderLiveUI();
+        }
 
-        // --- Event Listeners ---
-        toggleButton.addEventListener('click', toggleMusic);
-        startButton.addEventListener('click', startAudioAndHideOverlay);
+        function renderLiveUI() {
+            liveUsdEl.innerText = currentBalanceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            liveUgxEl.innerText = Math.floor(currentBalanceUSD * rate).toLocaleString();
+            
+            const percentage = ((currentBalanceUSD - 350) / (1500 - 350)) * 100;
+            progressBar.style.width = `${percentage}%`;
 
-        // Ensures the state is correct on load without attempting to play
-        window.addEventListener('load', () => {
-             audio.volume = 0.4;
-             audio.muted = true;
-             isMuted = true;
-             setIcon(isMuted);
-             
-             // Update progress bar
-             updateProgressBar(); 
-        });
+            liveUsdEl.classList.remove('value-flash');
+            void liveUsdEl.offsetWidth; 
+            liveUsdEl.classList.add('value-flash');
+        }
 
-
-        // --- Scroll Progress Indicator ---
-        const progressBar = document.getElementById('scroll-progress');
-        
-        const updateProgressBar = () => {
-            const scrollHeight = document.documentElement.scrollHeight;
-            const clientHeight = document.documentElement.clientHeight;
-            const scrollTop = document.documentElement.scrollTop;
-            const totalScrollable = scrollHeight - clientHeight;
-            const scrolledPercentage = (scrollTop / totalScrollable) * 100;
-
-            if (totalScrollable > 0) {
-                progressBar.style.width = scrolledPercentage + '%';
+        // --- STOP & ADD TO ACCOUNT LOGIC ---
+        function toggleUpgrade() {
+            if (isRunning) {
+                // STOP Logic
+                isRunning = false;
+                upgradeIcon.innerText = "check_circle";
+                upgradeIcon.classList.add('text-green-500');
+                liveStatus.innerText = "STOPPED";
+                liveStatus.classList.replace('bg-trade-up/10', 'bg-red-500/10');
+                liveStatus.classList.replace('text-trade-up', 'text-red-500');
+                
+                // Add to Total Account
+                const amountToAddUGX = Math.floor(currentBalanceUSD * rate);
+                totalBalanceUGX += amountToAddUGX;
+                totalUgxEl.innerText = totalBalanceUGX.toLocaleString();
+                
+                // Feedback
+                stopOverlay.style.opacity = '1';
+                
+                // Restart after 3 seconds
+                setTimeout(() => {
+                    isRunning = true;
+                    upgradeIcon.innerText = "cached";
+                    upgradeIcon.classList.remove('text-green-500');
+                    liveStatus.innerText = "LIVE UPDATE";
+                    liveStatus.classList.replace('bg-red-500/10', 'bg-trade-up/10');
+                    liveStatus.classList.replace('text-red-500', 'text-trade-up');
+                    stopOverlay.style.opacity = '0';
+                    currentBalanceUSD = 350; // Reset counter after claiming
+                }, 3000);
             }
-        };
+        }
 
-        // --- Scroll Reveal Logic (Intersection Observer) ---
-        
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.05 
-        };
+        // --- View Switching ---
+        function switchView(view) {
+            const home = document.getElementById('home-view');
+            const trades = document.getElementById('trades-view');
+            const navHome = document.getElementById('nav-home');
+            const navTrades = document.getElementById('nav-trades');
 
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
+            if (view === 'home') {
+                home.classList.remove('view-hidden');
+                trades.classList.add('view-hidden');
+                navHome.classList.add('text-primary');
+                navHome.classList.remove('text-slate-400');
+                navTrades.classList.remove('text-primary');
+                navTrades.classList.add('text-slate-400');
+            } else {
+                home.classList.add('view-hidden');
+                trades.classList.remove('view-hidden');
+                navTrades.classList.add('text-primary');
+                navTrades.classList.remove('text-slate-400');
+                navHome.classList.remove('text-primary');
+                navHome.classList.add('text-slate-400');
+            }
+        }
 
-        const storyParagraphs = document.querySelectorAll('.story-paragraph');
-        storyParagraphs.forEach(paragraph => {
-            observer.observe(paragraph);
-        });
+        // --- Market Simulation ---
+        function updateMarketPrices() {
+            const btc = document.getElementById('price-btc');
+            const eth = document.getElementById('price-eth');
+            
+            const btcPrice = 64000 + (Math.random() * 500);
+            const ethPrice = 3400 + (Math.random() * 50);
+            
+            btc.innerText = `$${btcPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            eth.innerText = `$${ethPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        }
+
+        function handleTrade(type) {
+            const notif = document.getElementById('trade-notif');
+            const notifText = document.getElementById('notif-text');
+            
+            notifText.innerText = `${type} Order Executed Successfully at Market Price`;
+            notif.classList.replace('opacity-0', 'opacity-100');
+            notif.classList.replace('-translate-y-20', 'translate-y-0');
+            
+            setTimeout(() => {
+                notif.classList.replace('opacity-100', 'opacity-0');
+                notif.classList.replace('translate-y-0', '-translate-y-20');
+            }, 2500);
+        }
+
+        // --- Market Activity Visualization ---
+        function updateCandles() {
+            const container = document.getElementById('chart-container');
+            if(!container) return;
+            const candles = container.children;
+            const first = candles[0];
+            first.classList.remove('animate-pulse-soft');
+            container.appendChild(first);
+            const last = candles[candles.length - 1];
+            const height = Math.floor(Math.random() * 30) + 15;
+            last.style.height = `${height}px`;
+            last.classList.add('animate-pulse-soft');
+        }
+
+        // --- Initialization ---
+        setInterval(updateEarnings, 1500);
+        setInterval(updateCandles, 3000);
+        setInterval(updateMarketPrices, 1000);
         
-        window.addEventListener('scroll', updateProgressBar);
-        
-        // --- Firebase Compliance (Empty, but necessary for environment) ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        updateEarnings();
     </script>
-
 </body>
 </html>
 
