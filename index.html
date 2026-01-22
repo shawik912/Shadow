@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-    <title>Global Futures Terminal Pro</title>
+    <title>Global Futures Terminal | Ephi Shawik</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -16,11 +16,13 @@
                 extend: {
                     colors: {
                         "primary": "#FCD535",
+                        "primary-hover": "#e2bf30",
                         "background-dark": "#0B0E11",
                         "card-dark": "#1E2329",
                         "trade-up": "#0ECB81",
                         "trade-down": "#F6465D",
-                        "text-gray": "#848E9C"
+                        "text-gray": "#848E9C",
+                        "border-gray": "rgba(255,255,255,0.08)"
                     },
                     fontFamily: { 
                         "sans": ["Inter", "sans-serif"],
@@ -31,262 +33,388 @@
         }
     </script>
     <style>
-        body { -webkit-font-smoothing: antialiased; letter-spacing: -0.01em; scroll-behavior: smooth; overflow: hidden; }
-        .glass-header { background: rgba(11, 14, 17, 0.95); backdrop-filter: blur(20px); }
+        body { 
+            -webkit-font-smoothing: antialiased; 
+            letter-spacing: -0.01em; 
+            scroll-behavior: smooth; 
+            overflow: hidden; 
+            background-color: #0b0e11;
+        }
+        
+        .glass-header { 
+            background: rgba(11, 14, 17, 0.85); 
+            backdrop-filter: blur(24px); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .premium-card {
+            background: linear-gradient(145deg, #1e2329 0%, #161a1e 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
         
-        /* High-speed animations */
-        @keyframes flash-green { 0% { color: #0ECB81; } 50% { color: #fff; } 100% { color: #0ECB81; } }
-        @keyframes flash-red { 0% { color: #F6465D; } 50% { color: #fff; } 100% { color: #F6465D; } }
-        .flash-up { animation: flash-green 0.3s ease-out; }
-        .flash-down { animation: flash-red 0.3s ease-out; }
-        
-        .order-row { transition: all 0.2s ease; position: relative; overflow: hidden; }
-        .order-bar-red { position: absolute; right: 0; top: 0; bottom: 0; background: rgba(246, 70, 93, 0.1); transition: width 0.4s ease; }
-        .order-bar-green { position: absolute; right: 0; top: 0; bottom: 0; background: rgba(14, 203, 129, 0.1); transition: width 0.4s ease; }
+        /* High-speed animations for ticks */
+        @keyframes tick-up { 0% { background: rgba(14, 203, 129, 0.2); } 100% { background: transparent; } }
+        @keyframes tick-down { 0% { background: rgba(246, 70, 93, 0.2); } 100% { background: transparent; } }
+        .flash-up { animation: tick-up 0.4s ease-out; }
+        .flash-down { animation: tick-down 0.4s ease-out; }
 
-        .view-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .hidden-view { display: none; }
-
-        canvas { image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: pixelated; }
-
+        /* Custom Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .verification-badge {
+            background: linear-gradient(90deg, #FCD535 0%, #f7b500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-ring {
+            position: relative;
+            padding: 2px;
+            background: linear-gradient(45deg, #FCD535, #0ECB81);
+            border-radius: 9999px;
+        }
+
+        .active-tab {
+            color: #FCD535;
+            position: relative;
+        }
+        .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #FCD535;
+        }
     </style>
 </head>
 <body class="bg-background-dark font-sans text-slate-100 min-h-screen selection:bg-primary selection:text-black">
 
-    <!-- Sticky Header -->
-    <header class="fixed top-0 left-0 right-0 z-[60] glass-header border-b border-white/5 px-4 py-2 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="size-8 rounded-lg bg-primary flex items-center justify-center">
-                <span class="material-symbols-outlined text-black font-bold text-xl">account_balance_wallet</span>
+    <!-- TOP NAVIGATION BAR -->
+    <header class="fixed top-0 left-0 right-0 z-[60] glass-header px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <!-- Profile Section -->
+            <div class="flex items-center gap-3 pr-4 border-r border-white/10">
+                <div class="profile-ring">
+                    <div class="size-9 rounded-full bg-card-dark overflow-hidden border-2 border-background-dark">
+                        <img src="ing.png" alt="Ephi Shawik" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=Ephi+Shawik&background=FCD535&color=000';">
+                    </div>
+                </div>
+                <div class="hidden sm:block">
+                    <div class="flex items-center gap-1">
+                        <span class="text-sm font-bold tracking-tight">Ephi Shawik</span>
+                        <span class="material-symbols-outlined text-[14px] text-primary fill-current">verified</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[9px] font-bold text-trade-up uppercase tracking-tighter">Verified Account</span>
+                    </div>
+                </div>
             </div>
-            <div>
-                <h2 class="text-[10px] font-black uppercase text-text-gray tracking-tighter leading-none mb-1">Portfolio Value</h2>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-xs font-bold text-primary">UGX</span>
-                    <span id="total-balance-ugx" class="text-sm font-black">8,800,678</span>
+
+            <!-- Global Balance -->
+            <div class="flex flex-col">
+                <span class="text-[9px] font-bold text-text-gray uppercase tracking-widest leading-none mb-1">Total Equity</span>
+                <div class="flex items-baseline gap-1.5">
+                    <span class="text-xs font-black text-primary">UGX</span>
+                    <span id="total-balance-ugx" class="text-lg font-black tracking-tight">8,800,678</span>
+                    <span class="text-[10px] text-trade-up font-bold bg-trade-up/10 px-1 rounded ml-1">+$42.10</span>
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="text-right hidden sm:block">
-                <p id="header-pair" class="text-[10px] font-black text-white uppercase">BTC/USDT</p>
-                <p id="header-price" class="text-xs font-mono font-bold text-trade-up">65,112.45</p>
+
+        <div class="flex items-center gap-2">
+            <div class="hidden md:flex flex-col items-end mr-4">
+                <span class="text-[10px] font-black text-white">BTC/USDT</span>
+                <span id="header-price" class="text-sm font-mono font-bold text-trade-up">65,112.45</span>
             </div>
-            <button class="bg-primary text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-tight active:scale-95 transition-all">
+            <button class="bg-primary hover:bg-primary-hover text-black px-5 py-2 rounded-lg text-xs font-black uppercase tracking-tight transition-all active:scale-95 shadow-lg shadow-primary/10">
                 Deposit
+            </button>
+            <button class="bg-white/5 hover:bg-white/10 p-2 rounded-lg transition-all">
+                <span class="material-symbols-outlined text-white">notifications</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Container for View Switching -->
+    <!-- CONTENT WRAPPER -->
     <div class="pt-16 pb-20 h-screen overflow-y-auto no-scrollbar">
         
-        <!-- VIEW: DASHBOARD -->
-        <main id="view-market" class="view-transition p-4 flex flex-col gap-4">
+        <!-- DASHBOARD VIEW -->
+        <main id="view-market" class="p-4 flex flex-col gap-4 max-w-[1400px] mx-auto">
             
-            <!-- Top Market Ticker Strip -->
-            <div class="flex gap-4 overflow-x-auto no-scrollbar py-1">
-                <div class="flex-shrink-0 bg-card-dark border border-white/5 rounded-lg px-3 py-2 min-w-[120px]">
-                    <p class="text-[9px] font-bold text-text-gray">BTC/USDT</p>
-                    <p id="ticker-btc" class="text-xs font-mono font-bold text-trade-up">65,112.45</p>
-                    <p class="text-[8px] text-trade-up">+2.45%</p>
+            <!-- MARKET STRIP -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="premium-card rounded-xl p-3">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] font-bold text-text-gray">BTC / USDT</span>
+                        <span class="text-[9px] text-trade-up font-bold">+2.45%</span>
+                    </div>
+                    <div id="ticker-btc" class="text-md font-mono font-bold mt-1 text-white">65,112.45</div>
                 </div>
-                <div class="flex-shrink-0 bg-card-dark border border-white/5 rounded-lg px-3 py-2 min-w-[120px]">
-                    <p class="text-[9px] font-bold text-text-gray">ETH/USDT</p>
-                    <p id="ticker-eth" class="text-xs font-mono font-bold text-trade-down">3,561.20</p>
-                    <p class="text-[8px] text-trade-down">-0.12%</p>
+                <div class="premium-card rounded-xl p-3">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] font-bold text-text-gray">ETH / USDT</span>
+                        <span class="text-[9px] text-trade-down font-bold">-0.12%</span>
+                    </div>
+                    <div id="ticker-eth" class="text-md font-mono font-bold mt-1 text-white">3,561.20</div>
                 </div>
-                <div class="flex-shrink-0 bg-card-dark border border-white/5 rounded-lg px-3 py-2 min-w-[120px]">
-                    <p class="text-[9px] font-bold text-text-gray">SOL/USDT</p>
-                    <p id="ticker-sol" class="text-xs font-mono font-bold text-trade-up">142.88</p>
-                    <p class="text-[8px] text-trade-up">+5.10%</p>
+                <div class="premium-card rounded-xl p-3 hidden sm:block">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] font-bold text-text-gray">SOL / USDT</span>
+                        <span class="text-[9px] text-trade-up font-bold">+5.10%</span>
+                    </div>
+                    <div id="ticker-sol" class="text-md font-mono font-bold mt-1 text-white">142.88</div>
+                </div>
+                <div class="premium-card rounded-xl p-3 hidden sm:block">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[10px] font-bold text-text-gray">BNB / USDT</span>
+                        <span class="text-[9px] text-trade-up font-bold">+1.22%</span>
+                    </div>
+                    <div id="ticker-bnb" class="text-md font-mono font-bold mt-1 text-white">582.30</div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                <!-- Order Book -->
-                <section class="lg:col-span-5 bg-card-dark rounded-2xl border border-white/5 overflow-hidden flex flex-col h-[420px]">
-                    <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
-                        <h3 class="text-[10px] font-black uppercase tracking-widest text-text-gray">Order Book</h3>
-                        <span class="text-[9px] font-mono text-text-gray">0.01</span>
+                
+                <!-- ORDER BOOK (LEFT) -->
+                <section class="lg:col-span-4 premium-card rounded-2xl overflow-hidden flex flex-col h-[500px]">
+                    <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-text-gray">Order Depth</h3>
+                        <div class="flex gap-2">
+                            <span class="text-[9px] font-mono text-primary bg-primary/10 px-1 rounded">Step 0.1</span>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-3 px-4 py-2 text-[9px] font-bold text-text-gray uppercase border-b border-white/5">
+                    <div class="grid grid-cols-3 px-4 py-2 text-[9px] font-bold text-text-gray uppercase bg-white/[0.01]">
                         <span>Price</span>
-                        <span class="text-center">Size</span>
-                        <span class="text-right">Sum</span>
+                        <span class="text-right">Amount</span>
+                        <span class="text-right">Total</span>
                     </div>
                     <div id="orderbook-asks" class="flex flex-col-reverse justify-end flex-1 overflow-hidden font-mono text-[10px]"></div>
-                    <div class="bg-background-dark/50 py-3 px-4 border-y border-white/5">
-                        <span id="market-price-main" class="text-xl font-black text-trade-up">65,112.45</span>
+                    
+                    <!-- SPREAD INDICATOR -->
+                    <div class="bg-background-dark/80 py-4 px-4 border-y border-white/5 flex items-center justify-between">
+                        <div>
+                            <span id="market-price-main" class="text-2xl font-black text-trade-up tracking-tighter">65,112.45</span>
+                            <div class="text-[10px] text-text-gray mt-[-4px]">≈ $65,112.45</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] font-bold text-trade-up">Spread 0.01%</div>
+                            <div class="text-[9px] text-text-gray font-mono">Index 65,110.02</div>
+                        </div>
                     </div>
+
                     <div id="orderbook-bids" class="flex flex-col flex-1 overflow-hidden font-mono text-[10px]"></div>
                 </section>
 
-                <!-- Active Positions -->
-                <section class="lg:col-span-7 space-y-4">
-                    <div class="bg-card-dark rounded-2xl border border-white/5 p-5 space-y-4">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2">
-                                <span class="bg-trade-up/20 text-trade-up text-[10px] font-black px-2 py-0.5 rounded">LONG</span>
-                                <h4 class="text-sm font-black italic">BTCUSDT Perp</h4>
-                                <span class="text-[9px] text-text-gray bg-white/5 px-1.5 py-0.5 rounded">100x</span>
-                            </div>
+                <!-- ACTIVE TRADE & POSITIONS (RIGHT) -->
+                <section class="lg:col-span-8 space-y-4">
+                    
+                    <!-- REAL POSITIONS CARD -->
+                    <div class="premium-card rounded-2xl p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <span class="material-symbols-outlined text-6xl">trending_up</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-[9px] font-bold text-text-gray uppercase mb-1">Unrealized PNL</p>
-                                <p id="pos-pnl" class="text-2xl font-black text-trade-up">+1,428.50</p>
+                        
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-trade-up/10 p-2 rounded-xl">
+                                    <span class="material-symbols-outlined text-trade-up">shield_with_heart</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-md font-black uppercase italic tracking-tighter">BTCUSDT Perpetual</h4>
+                                    <div class="flex gap-2 items-center mt-0.5">
+                                        <span class="bg-trade-up text-black text-[9px] font-black px-1.5 rounded">CROSS</span>
+                                        <span class="bg-white/10 text-white text-[9px] font-bold px-1.5 rounded">100x</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-[9px] font-bold text-text-gray uppercase mb-1">ROE%</p>
-                                <p id="pos-roe" class="text-2xl font-black text-trade-up">+245.12%</p>
+                                <p class="text-[10px] font-bold text-text-gray uppercase tracking-widest">Est. Liq Price</p>
+                                <p class="text-sm font-mono font-bold text-orange-400">58,110.00</p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-3 gap-2 py-3 border-t border-white/5">
+
+                        <div class="grid grid-cols-2 gap-8 mb-6">
+                            <div class="space-y-1">
+                                <p class="text-[10px] font-bold text-text-gray uppercase tracking-widest">Unrealized PNL (UGX)</p>
+                                <div class="flex items-baseline gap-2">
+                                    <p id="pos-pnl" class="text-4xl font-black text-trade-up tracking-tighter">+1,428,500</p>
+                                </div>
+                            </div>
+                            <div class="space-y-1 text-right">
+                                <p class="text-[10px] font-bold text-text-gray uppercase tracking-widest">ROE %</p>
+                                <p id="pos-roe" class="text-4xl font-black text-trade-up tracking-tighter">+245.12%</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4 p-4 bg-black/20 rounded-xl border border-white/5">
                             <div>
-                                <p class="text-[8px] font-bold text-text-gray uppercase">Entry</p>
-                                <p class="text-[10px] font-mono font-bold">64,210.00</p>
+                                <p class="text-[9px] font-bold text-text-gray uppercase">Entry Price</p>
+                                <p class="text-xs font-mono font-bold">64,210.00</p>
                             </div>
                             <div class="text-center">
-                                <p class="text-[8px] font-bold text-text-gray uppercase">Mark</p>
-                                <p id="pos-mark" class="text-[10px] font-mono font-bold text-primary">65,112.45</p>
+                                <p class="text-[9px] font-bold text-text-gray uppercase">Mark Price</p>
+                                <p id="pos-mark" class="text-xs font-mono font-bold text-primary">65,112.45</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[8px] font-bold text-text-gray uppercase">Liq.</p>
-                                <p class="text-[10px] font-mono font-bold text-orange-500">58,110.00</p>
+                                <p class="text-[9px] font-bold text-text-gray uppercase">Margin</p>
+                                <p class="text-xs font-mono font-bold">0.42 BTC</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3 mt-4">
+                            <button class="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Close Position</button>
+                            <button class="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Take Profit/Stop Loss</button>
+                        </div>
+                    </div>
+
+                    <!-- TRUST SIGNALS -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="premium-card p-4 rounded-xl flex items-center gap-3">
+                            <div class="size-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-blue-500">verified_user</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase text-white leading-none">KYC Level 2</p>
+                                <p class="text-[9px] text-text-gray">Identity Verified</p>
+                            </div>
+                        </div>
+                        <div class="premium-card p-4 rounded-xl flex items-center gap-3">
+                            <div class="size-10 rounded-full bg-trade-up/10 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-trade-up">lock</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase text-white leading-none">Secure Vault</p>
+                                <p class="text-[9px] text-text-gray">2FA Enabled</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Market Rewards -->
-                    <div onclick="claimBonus()" class="bg-gradient-to-r from-primary/20 to-transparent border border-primary/20 p-5 rounded-2xl flex items-center justify-between cursor-pointer active:scale-[0.98] transition-all">
+                    <!-- BONUS CLAIM -->
+                    <div onclick="claimBonus()" class="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 p-5 rounded-2xl flex items-center justify-between cursor-pointer group active:scale-[0.98] transition-all">
                         <div class="flex items-center gap-4">
-                            <div class="size-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                                <span class="material-symbols-outlined text-black font-bold">payments</span>
+                            <div class="size-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-6 transition-transform">
+                                <span class="material-symbols-outlined text-black font-black">card_giftcard</span>
                             </div>
                             <div>
-                                <h4 class="text-sm font-black uppercase italic">Claim $1,000 Bonus</h4>
-                                <p class="text-[10px] text-text-gray font-medium">Daily trading rebate available now</p>
+                                <h4 class="text-sm font-black uppercase italic tracking-tight">Claim Referral Dividend</h4>
+                                <p class="text-[10px] text-text-gray font-medium">Verified payout for Ephi Shawik</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-primary">chevron_right</span>
+                        <div class="bg-primary/20 p-1 rounded-full group-hover:translate-x-1 transition-transform">
+                            <span class="material-symbols-outlined text-primary">chevron_right</span>
+                        </div>
                     </div>
                 </section>
             </div>
         </main>
 
-        <!-- VIEW: CHART (PRO TRADINGVIEW STYLE) -->
+        <!-- CHART VIEW -->
         <main id="view-chart" class="hidden h-full flex flex-col bg-background-dark">
-            <!-- Chart Toolbar -->
-            <div class="flex items-center gap-4 px-4 py-2 border-b border-white/5 overflow-x-auto no-scrollbar">
-                <div class="flex items-center gap-1">
-                    <span class="text-sm font-black">BTCUSDT</span>
-                    <span class="text-[10px] bg-white/10 px-1 rounded text-text-gray">1m</span>
+            <div class="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-card-dark/30">
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-black tracking-tighter">BTCUSDT Perpetual</span>
+                    <div class="flex gap-2 text-[10px] font-bold text-text-gray uppercase">
+                        <button class="active-tab px-1">1m</button>
+                        <button class="px-1">5m</button>
+                        <button class="px-1">1h</button>
+                        <button class="px-1">Indicators</button>
+                    </div>
                 </div>
-                <div class="h-4 w-px bg-white/10"></div>
-                <div class="flex gap-3 text-[10px] font-bold text-text-gray uppercase whitespace-nowrap">
-                    <button class="text-primary border-b border-primary">Time</button>
-                    <button>15m</button>
-                    <button>1h</button>
-                    <button>4h</button>
-                    <button>1D</button>
-                    <button class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">add</span> Indicators</button>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-mono font-bold text-trade-up">65,112.45</span>
                 </div>
             </div>
 
-            <!-- Canvas Container -->
             <div id="chart-container" class="relative flex-1 bg-background-dark overflow-hidden cursor-crosshair">
                 <canvas id="main-chart"></canvas>
-                
-                <!-- Floating Price Label -->
                 <div id="chart-price-label" class="absolute right-0 bg-trade-up text-black px-2 py-0.5 text-[10px] font-bold font-mono z-10 transition-all duration-100">65,112.45</div>
-                
-                <!-- Watermark -->
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
-                    <h1 class="text-8xl font-black uppercase -rotate-12">Global Terminal</h1>
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.02]">
+                    <h1 class="text-9xl font-black uppercase -rotate-12">VERIFIED TERMINAL</h1>
                 </div>
             </div>
 
-            <!-- Chart Stats Footer -->
-            <div class="grid grid-cols-4 px-4 py-3 border-t border-white/5 bg-card-dark/50">
+            <div class="grid grid-cols-4 px-4 py-4 border-t border-white/5 bg-card-dark/50">
                 <div>
-                    <p class="text-[8px] font-black text-text-gray uppercase mb-1">24h High</p>
+                    <p class="text-[8px] font-black text-text-gray uppercase tracking-widest mb-1">24h High</p>
                     <p class="text-xs font-mono font-bold">66,420.00</p>
                 </div>
                 <div>
-                    <p class="text-[8px] font-black text-text-gray uppercase mb-1">24h Low</p>
-                    <p class="text-xs font-mono font-bold">63,110.45</p>
+                    <p class="text-[8px] font-black text-text-gray uppercase tracking-widest mb-1">24h Low</p>
+                    <p class="text-xs font-mono font-bold text-trade-down">63,110.45</p>
                 </div>
                 <div>
-                    <p class="text-[8px] font-black text-text-gray uppercase mb-1">24h Vol(BTC)</p>
-                    <p class="text-xs font-mono font-bold">42.84K</p>
+                    <p class="text-[8px] font-black text-text-gray uppercase tracking-widest mb-1">24h Volume</p>
+                    <p class="text-xs font-mono font-bold">42.84K BTC</p>
                 </div>
-                <div>
-                    <p class="text-[8px] font-black text-text-gray uppercase mb-1">24h Vol(USDT)</p>
-                    <p class="text-xs font-mono font-bold">2.82B</p>
+                <div class="text-right">
+                    <p class="text-[8px] font-black text-text-gray uppercase tracking-widest mb-1">Funding</p>
+                    <p class="text-xs font-mono font-bold text-primary">0.0100%</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Success Modal -->
-    <div id="claim-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-300">
-        <div class="bg-card-dark border border-primary/30 w-full max-w-xs rounded-3xl p-8 text-center" id="modal-content">
-            <div class="size-20 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-12">
-                <span class="material-symbols-outlined text-black text-5xl font-bold">verified</span>
+    <!-- SUCCESS MODAL -->
+    <div id="claim-modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-card-dark border border-white/10 w-full max-w-xs rounded-[2.5rem] p-10 text-center shadow-2xl relative">
+            <div class="absolute -top-10 left-1/2 -translate-x-1/2 size-20 bg-primary rounded-full flex items-center justify-center border-8 border-background-dark shadow-xl">
+                <span class="material-symbols-outlined text-black text-4xl font-black">done_all</span>
             </div>
-            <h2 class="text-2xl font-black text-white mb-2 italic tracking-tighter uppercase">Transfer OK</h2>
-            <p class="text-xs text-text-gray mb-8">Credited <span class="text-primary font-bold">3,577,000 UGX</span> to collateral balance.</p>
-            <button onclick="closeModal()" class="w-full bg-white text-black py-4 rounded-xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all">Back to Trade</button>
+            <div class="mt-4">
+                <h2 class="text-2xl font-black text-white mb-2 italic tracking-tighter uppercase">Verified Payout</h2>
+                <p class="text-xs text-text-gray mb-8 px-4 leading-relaxed">System successfully credited <span class="text-primary font-bold">3,577,000 UGX</span> to Ephi Shawik's margin wallet.</p>
+                <button onclick="closeModal()" class="w-full bg-primary hover:bg-primary-hover text-black py-4 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all shadow-lg shadow-primary/20">Resume Terminal</button>
+            </div>
         </div>
     </div>
 
-    <!-- Navigation -->
+    <!-- BOTTOM NAVIGATION -->
     <nav class="fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-white/5 pb-safe px-6">
         <div class="flex justify-between items-center h-16">
             <button onclick="switchView('market')" id="nav-market" class="flex flex-col items-center gap-1 text-primary transition-colors">
-                <span class="material-symbols-outlined text-[24px]">grid_view</span>
+                <span class="material-symbols-outlined text-[24px]">analytics</span>
                 <span class="text-[8px] font-black uppercase tracking-tighter">Market</span>
             </button>
             <button onclick="switchView('chart')" id="nav-chart" class="flex flex-col items-center gap-1 text-text-gray transition-colors">
-                <span class="material-symbols-outlined text-[24px]">candlestick_chart</span>
-                <span class="text-[8px] font-black uppercase tracking-tighter">Chart</span>
+                <span class="material-symbols-outlined text-[24px]">query_stats</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Charts</span>
             </button>
-            <button class="size-14 -mt-10 rounded-2xl bg-primary text-black shadow-2xl flex items-center justify-center ring-8 ring-background-dark active:scale-90 transition-all">
-                <span class="material-symbols-outlined text-[32px] font-black">swap_vert</span>
+            <button class="size-14 -mt-10 rounded-2xl bg-primary text-black shadow-2xl flex items-center justify-center ring-8 ring-background-dark active:scale-90 hover:scale-105 transition-all">
+                <span class="material-symbols-outlined text-[32px] font-black">account_balance_wallet</span>
             </button>
             <button class="flex flex-col items-center gap-1 text-text-gray">
                 <span class="material-symbols-outlined text-[24px]">bolt</span>
                 <span class="text-[8px] font-black uppercase tracking-tighter">Futures</span>
             </button>
             <button class="flex flex-col items-center gap-1 text-text-gray">
-                <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
-                <span class="text-[8px] font-black uppercase tracking-tighter">Assets</span>
+                <span class="material-symbols-outlined text-[24px]">manage_accounts</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Profile</span>
             </button>
         </div>
     </nav>
 
     <script>
-        // --- Core State ---
+        // --- Core State Management ---
         let totalBalanceUGX = 8800678;
         let btcPrice = 65112.45;
+        let lastBtcPrice = 65112.45;
         const exchangeRate = 3577;
         let activeView = 'market';
         
-        // Chart State
         let candles = [];
-        const MAX_CANDLES = 60;
+        const MAX_CANDLES = 100;
         let lastCandleTime = 0;
 
-        // Elements
         const totalUgxEl = document.getElementById('total-balance-ugx');
         const canvas = document.getElementById('main-chart');
         const ctx = canvas.getContext('2d');
 
-        // --- Functions ---
         function switchView(view) {
             activeView = view;
             const marketView = document.getElementById('view-market');
@@ -295,7 +423,7 @@
             const navChart = document.getElementById('nav-chart');
 
             if (view === 'market') {
-                marketView.style.display = 'flex';
+                marketView.style.display = 'block';
                 chartView.style.display = 'none';
                 navMarket.classList.replace('text-text-gray', 'text-primary');
                 navChart.classList.replace('text-primary', 'text-text-gray');
@@ -304,7 +432,7 @@
                 chartView.style.display = 'flex';
                 navMarket.classList.replace('text-primary', 'text-text-gray');
                 navChart.classList.replace('text-text-gray', 'text-primary');
-                resizeChart();
+                setTimeout(resizeChart, 50);
             }
         }
 
@@ -318,84 +446,84 @@
             document.getElementById('claim-modal').classList.add('opacity-0', 'pointer-events-none');
         }
 
-        // --- Order Book Engine ---
         function updateOrderBook() {
             const asks = document.getElementById('orderbook-asks');
             const bids = document.getElementById('orderbook-bids');
             asks.innerHTML = '';
             bids.innerHTML = '';
 
-            for(let i=0; i<8; i++) {
-                asks.appendChild(createRow('ask', btcPrice + (8-i)*2.5));
-                bids.appendChild(createRow('bid', btcPrice - (i+1)*2.5));
+            for(let i=0; i<12; i++) {
+                asks.appendChild(createRow('ask', btcPrice + (12-i)*0.85));
+                bids.appendChild(createRow('bid', btcPrice - (i+1)*0.85));
             }
         }
 
         function createRow(type, price) {
             const row = document.createElement('div');
-            row.className = 'grid grid-cols-3 px-4 py-0.5 order-row';
-            const size = (Math.random() * 2).toFixed(3);
+            row.className = 'grid grid-cols-3 px-4 py-[3px] relative overflow-hidden group hover:bg-white/[0.03] transition-colors';
+            const size = (Math.random() * 0.8 + 0.1).toFixed(3);
+            const sum = (price * size / 10).toFixed(2);
+            const barWidth = Math.random() * 80 + 10;
+            
             row.innerHTML = `
-                <div class="${type === 'ask' ? 'order-bar-red' : 'order-bar-green'}" style="width: ${Math.random()*70}%"></div>
-                <span class="${type === 'ask' ? 'text-trade-down' : 'text-trade-up'}">${price.toFixed(2)}</span>
-                <span class="text-center text-slate-400">${size}</span>
-                <span class="text-right text-slate-500">${(price * size / 1000).toFixed(1)}K</span>
+                <div class="absolute right-0 top-0 bottom-0 opacity-20 transition-all duration-500" 
+                     style="width: ${barWidth}%; background: ${type === 'ask' ? '#F6465D' : '#0ECB81'};"></div>
+                <span class="relative z-10 ${type === 'ask' ? 'text-trade-down' : 'text-trade-up'} font-bold">${price.toFixed(1)}</span>
+                <span class="relative z-10 text-right text-slate-300 font-medium">${size}</span>
+                <span class="relative z-10 text-right text-slate-500 font-medium">${sum}</span>
             `;
             return row;
         }
 
-        // --- Chart Engine ---
         function initCandles() {
             let base = 65000;
             for(let i=0; i<MAX_CANDLES; i++) {
-                const open = base + (Math.random() - 0.5) * 40;
-                const close = open + (Math.random() - 0.5) * 60;
+                const open = base + (Math.random() - 0.5) * 60;
+                const close = open + (Math.random() - 0.5) * 80;
                 candles.push({
                     open,
                     close,
-                    high: Math.max(open, close) + Math.random() * 10,
-                    low: Math.min(open, close) - Math.random() * 10,
-                    vol: Math.random() * 100
+                    high: Math.max(open, close) + Math.random() * 20,
+                    low: Math.min(open, close) - Math.random() * 20
                 });
                 base = close;
             }
         }
 
         function resizeChart() {
+            if (!canvas) return;
             const container = document.getElementById('chart-container');
             canvas.width = container.clientWidth * window.devicePixelRatio;
             canvas.height = container.clientHeight * window.devicePixelRatio;
             canvas.style.width = container.clientWidth + 'px';
             canvas.style.height = container.clientHeight + 'px';
             ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            drawChart();
         }
 
         function drawChart() {
             if(activeView !== 'chart') return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             const w = canvas.width / window.devicePixelRatio;
             const h = canvas.height / window.devicePixelRatio;
-            const candleW = w / MAX_CANDLES;
+            ctx.clearRect(0, 0, w, h);
             
-            // Find Min/Max for Scaling
-            const visibleCandles = candles.slice(-MAX_CANDLES);
-            const min = Math.min(...visibleCandles.map(c => c.low)) * 0.9995;
-            const max = Math.max(...visibleCandles.map(c => c.high)) * 1.0005;
+            const visible = candles.slice(-MAX_CANDLES);
+            const min = Math.min(...visible.map(c => c.low)) * 0.999;
+            const max = Math.max(...visible.map(c => c.high)) * 1.001;
             const range = max - min;
+            const candleW = w / MAX_CANDLES;
 
-            const getY = (price) => h - ((price - min) / range) * (h - 100) - 50;
+            const getY = (p) => h - ((p - min) / range) * (h - 80) - 40;
 
-            // Draw Grid
-            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            // Grid Lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
             ctx.lineWidth = 1;
-            for(let i=1; i<5; i++) {
-                const y = (h/5) * i;
+            for(let i=1; i<6; i++) {
+                const y = (h/6) * i;
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
             }
 
-            // Draw Candles
-            visibleCandles.forEach((c, i) => {
+            visible.forEach((c, i) => {
                 const x = i * candleW + candleW * 0.2;
                 const cw = candleW * 0.6;
                 const isUp = c.close >= c.open;
@@ -403,58 +531,67 @@
                 ctx.strokeStyle = isUp ? '#0ECB81' : '#F6465D';
                 ctx.fillStyle = isUp ? '#0ECB81' : '#F6465D';
 
-                // Wick
                 ctx.beginPath();
                 ctx.moveTo(x + cw/2, getY(c.high));
                 ctx.lineTo(x + cw/2, getY(c.low));
                 ctx.stroke();
 
-                // Body
                 const y1 = getY(c.open);
                 const y2 = getY(c.close);
                 ctx.fillRect(x, Math.min(y1, y2), cw, Math.max(Math.abs(y1 - y2), 1));
             });
 
-            // Live Price Line
+            // Price Line
             const lastY = getY(btcPrice);
-            ctx.setLineDash([5, 5]);
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.setLineDash([4, 4]);
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
             ctx.beginPath(); ctx.moveTo(0, lastY); ctx.lineTo(w, lastY); ctx.stroke();
             ctx.setLineDash([]);
 
             const label = document.getElementById('chart-price-label');
             label.innerText = btcPrice.toFixed(2);
             label.style.top = (lastY - 10) + 'px';
-            label.className = `absolute right-0 text-black px-2 py-0.5 text-[10px] font-bold font-mono z-10 transition-all ${btcPrice > candles[candles.length-1].open ? 'bg-trade-up' : 'bg-trade-down'}`;
+            label.className = `absolute right-0 text-black px-2 py-0.5 text-[10px] font-black font-mono z-10 ${btcPrice >= lastBtcPrice ? 'bg-trade-up' : 'bg-trade-down'}`;
         }
 
-        function engine() {
-            // Price Logic
-            const change = (Math.random() - 0.5) * 12;
-            btcPrice += change;
+        function updateData() {
+            const delta = (Math.random() - 0.5) * 15;
+            lastBtcPrice = btcPrice;
+            btcPrice += delta;
             
-            // Update UI
-            document.getElementById('header-price').innerText = btcPrice.toFixed(2);
-            document.getElementById('header-price').className = `text-xs font-mono font-bold ${change > 0 ? 'text-trade-up' : 'text-trade-down'}`;
-            document.getElementById('market-price-main').innerText = btcPrice.toFixed(2);
-            document.getElementById('pos-mark').innerText = btcPrice.toFixed(2);
-            document.getElementById('ticker-btc').innerText = btcPrice.toFixed(2);
+            // Global Headers
+            const hp = document.getElementById('header-price');
+            hp.innerText = btcPrice.toFixed(2);
+            hp.className = `text-sm font-mono font-bold transition-colors ${delta > 0 ? 'text-trade-up flash-up' : 'text-trade-down flash-down'}`;
 
-            // Update PNL
-            const pnl = 1428.50 + (btcPrice - 65112.45) * 45;
-            document.getElementById('pos-pnl').innerText = (pnl > 0 ? '+' : '') + pnl.toLocaleString(undefined, {minimumFractionDigits:2});
-            document.getElementById('pos-roe').innerText = (pnl / 452).toFixed(2) + '%';
+            // Dashboard
+            const mpm = document.getElementById('market-price-main');
+            if (mpm) {
+                mpm.innerText = btcPrice.toFixed(2);
+                mpm.className = `text-2xl font-black tracking-tighter transition-colors ${delta > 0 ? 'text-trade-up' : 'text-trade-down'}`;
+            }
 
-            // Update Candle Data
-            const last = candles[candles.length - 1];
-            last.close = btcPrice;
-            if(btcPrice > last.high) last.high = btcPrice;
-            if(btcPrice < last.low) last.low = btcPrice;
+            // PNL Calculation
+            const pnlValue = 1428500 + (btcPrice - 64210) * 850;
+            const roe = ((pnlValue / 420000) * 100).toFixed(2);
+            
+            const pnlEl = document.getElementById('pos-pnl');
+            if (pnlEl) {
+                pnlEl.innerText = (pnlValue > 0 ? '+' : '') + Math.floor(pnlValue).toLocaleString();
+                document.getElementById('pos-roe').innerText = (pnlValue > 0 ? '+' : '') + roe + '%';
+                document.getElementById('pos-mark').innerText = btcPrice.toFixed(2);
+                document.getElementById('ticker-btc').innerText = btcPrice.toFixed(2);
+            }
 
-            // Tick Timer for New Candle (every ~10 seconds for demo)
-            if(Date.now() - lastCandleTime > 10000) {
-                candles.push({open: btcPrice, close: btcPrice, high: btcPrice, low: btcPrice, vol: 0});
-                if(candles.length > MAX_CANDLES * 2) candles.shift();
+            // New Candle Logic
+            const lastCandle = candles[candles.length - 1];
+            lastCandle.close = btcPrice;
+            if(btcPrice > lastCandle.high) lastCandle.high = btcPrice;
+            if(btcPrice < lastCandle.low) lastCandle.low = btcPrice;
+
+            if(Date.now() - lastCandleTime > 5000) {
+                candles.push({open: btcPrice, close: btcPrice, high: btcPrice, low: btcPrice});
+                if(candles.length > MAX_CANDLES) candles.shift();
                 lastCandleTime = Date.now();
             }
 
@@ -462,18 +599,14 @@
             if(activeView === 'chart') drawChart();
         }
 
-        // --- Init ---
         window.onload = () => {
             initCandles();
             lastCandleTime = Date.now();
-            updateMainDisplay();
-            window.addEventListener('resize', resizeChart);
-            setInterval(engine, 500);
-        };
-
-        function updateMainDisplay() {
             totalUgxEl.innerText = totalBalanceUGX.toLocaleString();
-        }
+            window.addEventListener('resize', resizeChart);
+            setInterval(updateData, 600);
+            resizeChart();
+        };
     </script>
 </body>
 </html>
