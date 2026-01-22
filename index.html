@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-    <title>Global Futures Terminal</title>
+    <title>Global Futures Terminal Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script id="tailwind-config">
@@ -15,355 +15,392 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#FCD535", // Binance Yellow
-                        "background-light": "#F2F2F7",
+                        "primary": "#FCD535",
                         "background-dark": "#0B0E11",
                         "card-dark": "#1E2329",
                         "trade-up": "#0ECB81",
                         "trade-down": "#F6465D",
                         "text-gray": "#848E9C"
                     },
-                    fontFamily: { "sans": ["Inter", "sans-serif"] },
+                    fontFamily: { 
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
                 },
             },
         }
     </script>
     <style>
-        body { -webkit-font-smoothing: antialiased; letter-spacing: -0.01em; }
-        .glass-header { background: rgba(11, 14, 17, 0.9); backdrop-filter: blur(20px); }
+        body { -webkit-font-smoothing: antialiased; letter-spacing: -0.01em; scroll-behavior: smooth; }
+        .glass-header { background: rgba(11, 14, 17, 0.95); backdrop-filter: blur(20px); }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
         
-        @keyframes blink-green { 0% { background: rgba(14, 203, 129, 0.2); } 100% { background: transparent; } }
-        @keyframes blink-red { 0% { background: rgba(246, 70, 93, 0.2); } 100% { background: transparent; } }
-        .blink-up { animation: blink-green 0.5s ease-out; }
-        .blink-down { animation: blink-red 0.5s ease-out; }
+        /* High-speed animations */
+        @keyframes flash-green { 0% { color: #0ECB81; } 50% { color: #fff; } 100% { color: #0ECB81; } }
+        @keyframes flash-red { 0% { color: #F6465D; } 50% { color: #fff; } 100% { color: #F6465D; } }
+        .flash-up { animation: flash-green 0.3s ease-out; }
+        .flash-down { animation: flash-red 0.3s ease-out; }
+        
+        .order-row { transition: all 0.2s ease; position: relative; overflow: hidden; }
+        .order-bar-red { position: absolute; right: 0; top: 0; bottom: 0; background: rgba(246, 70, 93, 0.1); transition: width 0.4s ease; }
+        .order-bar-green { position: absolute; right: 0; top: 0; bottom: 0; background: rgba(14, 203, 129, 0.1); transition: width 0.4s ease; }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .view-hidden { display: none; }
-        .tab-active { color: #FCD535; border-bottom: 2px solid #FCD535; }
     </style>
 </head>
-<body class="bg-background-dark font-sans text-slate-100 min-h-screen pb-24 overflow-x-hidden">
+<body class="bg-background-dark font-sans text-slate-100 min-h-screen pb-24 overflow-x-hidden selection:bg-primary selection:text-black">
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 glass-header border-b border-white/5 px-4 py-3 flex items-center justify-between">
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-[60] glass-header border-b border-white/5 px-4 py-2 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="relative">
-                <div class="size-9 rounded-full border border-primary/50 overflow-hidden bg-slate-800">
-                    <img src="https://ui-avatars.com/api/?name=E&background=FCD535&color=000" alt="Profile" class="w-full h-full object-cover">
-                </div>
-                <div class="absolute -bottom-0.5 -right-0.5 size-3 bg-blue-500 rounded-full border-2 border-background-dark flex items-center justify-center">
-                    <span class="material-symbols-outlined text-white text-[8px] font-bold">check</span>
-                </div>
+            <div class="size-8 rounded-lg bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-black font-bold text-xl">account_balance_wallet</span>
             </div>
             <div>
-                <div class="flex items-center gap-1">
-                    <h2 class="text-xs font-bold uppercase tracking-tight">Ephia Shawik</h2>
-                    <span class="material-symbols-outlined text-blue-500 text-[14px] fill-1">verified</span>
+                <h2 class="text-[10px] font-black uppercase text-text-gray tracking-tighter leading-none mb-1">Portfolio Value</h2>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-xs font-bold text-primary">UGX</span>
+                    <span id="total-balance-ugx" class="text-sm font-black">8,800,678</span>
                 </div>
-                <p class="text-[9px] font-medium text-text-gray">VIP 1 • ID: 884067229</p>
             </div>
         </div>
         <div class="flex gap-2">
-            <button class="bg-primary text-black px-4 py-1.5 rounded-md text-[11px] font-bold active:scale-95 transition-all">DEPOSIT</button>
-            <button class="bg-white/10 text-white p-1.5 rounded-md active:scale-95 transition-all">
-                <span class="material-symbols-outlined text-sm">notifications</span>
+            <button class="bg-white/5 text-white p-2 rounded-lg border border-white/5 active:scale-90 transition-all">
+                <span class="material-symbols-outlined text-lg">search</span>
+            </button>
+            <button class="bg-primary text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-tight active:scale-95 transition-all">
+                Transfer
             </button>
         </div>
     </header>
 
-    <!-- Top Navigation Tabs (Mimicking Binance) -->
-    <nav class="bg-background-dark border-b border-white/5 overflow-x-auto no-scrollbar whitespace-nowrap px-4">
-        <div class="flex gap-6 text-[11px] font-bold uppercase tracking-wide">
-            <button class="py-3 tab-active">Overview</button>
-            <button class="py-3 text-text-gray">Spot</button>
-            <button class="py-3 text-text-gray">Futures</button>
-            <button class="py-3 text-text-gray">Funding</button>
-            <button class="py-3 text-text-gray">Earn</button>
+    <main class="flex flex-col gap-4 p-4">
+
+        <!-- Top Market Ticker Strip -->
+        <div class="flex gap-4 overflow-x-auto no-scrollbar py-1">
+            <div class="flex-shrink-0 bg-card-dark border border-white/5 rounded-lg px-3 py-2 min-w-[120px]">
+                <p class="text-[9px] font-bold text-text-gray">BTC/USDT</p>
+                <p id="ticker-btc" class="text-xs font-mono font-bold text-trade-up">65,112.45</p>
+                <p class="text-[8px] text-trade-up">+2.45%</p>
+            </div>
+            <div class="flex-shrink-0 bg-card-dark border border-white/5 rounded-lg px-3 py-2 min-w-[120px]">
+                <p class="text-[9px] font-bold text-text-gray">ETH/USDT</p>
+                <p id="ticker-eth" class="text-xs font-mono font-bold text-trade-down">3,561.20</p>
+                <p class="text-[8px] text-trade-down">-0.12%</p>
+            </div>
+            <div class="flex-shrink-0 bg-card-dark border border-white/5 rounded-lg px-3 py-2 min-w-[120px]">
+                <p class="text-[9px] font-bold text-text-gray">SOL/USDT</p>
+                <p id="ticker-sol" class="text-xs font-mono font-bold text-trade-up">142.88</p>
+                <p class="text-[8px] text-trade-up">+5.10%</p>
+            </div>
         </div>
-    </nav>
 
-    <!-- MAIN DASHBOARD -->
-    <main id="home-view" class="px-4 pt-4 space-y-4">
-        
-        <!-- Live Claiming Section (New Request) -->
-        <section class="bg-card-dark rounded-xl p-4 border border-white/5">
-            <div class="flex justify-between items-start mb-3">
-                <div>
-                    <p class="text-text-gray text-[10px] font-bold uppercase tracking-widest">Bonus Pool</p>
-                    <h3 class="text-xl font-black text-white">$1,000.00</h3>
+        <!-- Two Column Layout for Pro Feel -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            
+            <!-- Left: Order Book (The Heart of Trading) -->
+            <section class="md:col-span-5 bg-card-dark rounded-2xl border border-white/5 overflow-hidden flex flex-col h-[400px]">
+                <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-text-gray">Order Book</h3>
+                    <div class="flex gap-2">
+                        <span class="size-2 bg-trade-up rounded-full"></span>
+                        <span class="size-2 bg-trade-down rounded-full"></span>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <p class="text-[9px] font-bold text-text-gray uppercase">Equivalent UGX</p>
-                    <p class="text-xs font-bold text-primary">3,577,000</p>
+
+                <!-- Labels -->
+                <div class="grid grid-cols-3 px-4 py-2 text-[9px] font-bold text-text-gray uppercase border-b border-white/5">
+                    <span>Price</span>
+                    <span class="text-center">Amount</span>
+                    <span class="text-right">Total</span>
                 </div>
+
+                <!-- Asks (Sellers) -->
+                <div id="orderbook-asks" class="flex flex-col-reverse justify-end flex-1 overflow-hidden font-mono text-[10px]">
+                    <!-- JS Generated -->
+                </div>
+
+                <!-- Spread/Market Price -->
+                <div class="bg-background-dark/50 py-3 px-4 flex items-center justify-between border-y border-white/5">
+                    <div class="flex items-center gap-2">
+                        <span id="market-price-main" class="text-lg font-black text-trade-up">65,112.45</span>
+                        <span class="material-symbols-outlined text-trade-up text-sm">trending_up</span>
+                    </div>
+                    <span class="text-[10px] font-bold text-text-gray tracking-tighter">$65,112.45</span>
+                </div>
+
+                <!-- Bids (Buyers) -->
+                <div id="orderbook-bids" class="flex flex-col flex-1 overflow-hidden font-mono text-[10px]">
+                    <!-- JS Generated -->
+                </div>
+            </section>
+
+            <!-- Right: Active Positions -->
+            <section class="md:col-span-7 space-y-4">
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-text-gray">Open Positions (1)</h2>
+                    <button class="text-[10px] font-bold text-primary underline underline-offset-4">Close All</button>
+                </div>
+
+                <!-- Position Card -->
+                <div class="bg-card-dark rounded-2xl border border-white/5 p-5 space-y-4 relative overflow-hidden">
+                    <!-- Subtle Glow -->
+                    <div class="absolute -top-10 -right-10 size-32 bg-trade-up/5 blur-3xl rounded-full"></div>
+
+                    <div class="flex justify-between items-start relative z-10">
+                        <div class="flex items-center gap-2">
+                            <div class="bg-trade-up/10 text-trade-up text-[10px] font-black px-2 py-1 rounded">LONG</div>
+                            <div>
+                                <h4 class="text-sm font-black">BTCUSDT <span class="text-text-gray font-medium">Perp</span></h4>
+                                <p class="text-[9px] text-text-gray font-bold">Cross 100x</p>
+                            </div>
+                        </div>
+                        <button class="text-text-gray active:scale-90"><span class="material-symbols-outlined text-lg">share</span></button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-8 relative z-10">
+                        <div>
+                            <p class="text-[9px] font-bold text-text-gray uppercase tracking-tighter mb-1">Unrealized PNL (USDT)</p>
+                            <div class="flex items-baseline gap-1">
+                                <span id="pos-pnl" class="text-2xl font-black text-trade-up">+1,428.50</span>
+                                <span class="text-[10px] font-bold text-trade-up">↑</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] font-bold text-text-gray uppercase tracking-tighter mb-1">ROE %</p>
+                            <p id="pos-roe" class="text-2xl font-black text-trade-up">+245.12%</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 py-3 border-y border-white/5 relative z-10">
+                        <div>
+                            <p class="text-[8px] font-bold text-text-gray uppercase mb-1">Size (USDT)</p>
+                            <p class="text-[11px] font-mono font-bold">45,200.00</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[8px] font-bold text-text-gray uppercase mb-1">Entry Price</p>
+                            <p class="text-[11px] font-mono font-bold text-text-gray">64,210.00</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[8px] font-bold text-text-gray uppercase mb-1">Liq. Price</p>
+                            <p class="text-[11px] font-mono font-bold text-orange-400">58,110.45</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 relative z-10">
+                        <button class="flex-1 bg-white/5 border border-white/5 py-2.5 rounded-lg text-[10px] font-black uppercase active:bg-white/10 transition-colors">TP/SL</button>
+                        <button class="flex-1 bg-white/5 border border-white/5 py-2.5 rounded-lg text-[10px] font-black uppercase active:bg-white/10 transition-colors">Adjust</button>
+                        <button class="flex-1 bg-trade-down/20 text-trade-down border border-trade-down/20 py-2.5 rounded-lg text-[10px] font-black uppercase active:bg-trade-down/30 transition-colors">Market Close</button>
+                    </div>
+                </div>
+
+                <!-- Recent Trades "The Tape" -->
+                <div class="bg-card-dark rounded-2xl border border-white/5 flex flex-col h-[200px]">
+                    <div class="px-4 py-2 border-b border-white/5 flex justify-between items-center">
+                        <h3 class="text-[9px] font-black uppercase text-text-gray">Market Trades</h3>
+                        <span class="size-1.5 bg-trade-up rounded-full animate-pulse"></span>
+                    </div>
+                    <div id="trade-tape" class="overflow-hidden px-4 py-2 font-mono text-[9px] space-y-1">
+                        <!-- JS Generated -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Claim Bonus Section -->
+        <section class="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center space-y-4">
+            <div>
+                <h3 class="text-sm font-black text-primary uppercase tracking-widest">Global Rewards Center</h3>
+                <p class="text-[10px] text-text-gray mt-1 font-medium">Claim your daily futures trading rebate now.</p>
             </div>
             
-            <button id="claim-btn" onclick="claimBonus()" class="w-full bg-primary hover:bg-yellow-500 text-black font-black py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 transition-all active:scale-[0.98]">
-                <span class="material-symbols-outlined font-bold">payments</span>
-              
+            <div class="flex justify-center items-center gap-4">
+                <div class="text-left">
+                    <p class="text-[8px] font-black text-text-gray uppercase">Amount</p>
+                    <p class="text-xl font-black text-white">$1,000.00</p>
+                </div>
+                <div class="h-8 w-px bg-white/10"></div>
+                <div class="text-left">
+                    <p class="text-[8px] font-black text-text-gray uppercase">Status</p>
+                    <p class="text-xs font-black text-trade-up">READY</p>
+                </div>
+            </div>
+
+            <button onclick="claimBonus()" class="w-full max-w-xs mx-auto bg-primary hover:bg-yellow-500 text-black font-black py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-primary/10 transition-all active:scale-[0.97] group">
+                <span class="material-symbols-outlined font-bold group-hover:rotate-12 transition-transform">payments</span>
+                CLAIM REWARDS
             </button>
-            
-            <p class="text-[8px] text-center text-text-gray mt-2 uppercase font-medium">Credits immediately to your total UGX balance</p>
         </section>
 
-        <!-- Wallet Card -->
-        <section class="bg-gradient-to-br from-[#2B3139] to-background-dark rounded-2xl p-5 shadow-2xl border border-white/10">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold text-text-gray uppercase tracking-widest">Total Balance</span>
-                    <span class="material-symbols-outlined text-text-gray text-xs">visibility</span>
-                </div>
-                <div class="flex items-center gap-1 text-trade-up bg-trade-up/10 px-2 py-0.5 rounded">
-                    <span class="material-symbols-outlined text-[10px]">trending_up</span>
-                    <span class="text-[10px] font-bold">+12.4%</span>
-                </div>
-            </div>
-            
-            <div class="mb-5">
-                <div class="flex items-baseline gap-2">
-                    <span class="text-sm font-bold text-primary">UGX</span>
-                    <h1 id="total-balance-ugx" class="text-3xl font-black tracking-tight">8,800,678</h1>
-                </div>
-                <p id="total-balance-usd" class="text-xs font-medium text-text-gray mt-1">≈ $2,460.35</p>
-            </div>
-
-            <div class="grid grid-cols-3 gap-3">
-                <button class="bg-white/5 hover:bg-white/10 py-2 rounded-lg text-center transition-all">
-                    <span class="material-symbols-outlined text-lg mb-1">send</span>
-                    <p class="text-[9px] font-bold uppercase">Send</p>
-                </button>
-                <button class="bg-white/5 hover:bg-white/10 py-2 rounded-lg text-center transition-all">
-                    <span class="material-symbols-outlined text-lg mb-1">call_received</span>
-                    <p class="text-[9px] font-bold uppercase">Receive</p>
-                </button>
-                <button class="bg-white/5 hover:bg-white/10 py-2 rounded-lg text-center transition-all">
-                    <span class="material-symbols-outlined text-lg mb-1">swap_horiz</span>
-                    <p class="text-[9px] font-bold uppercase">Swap</p>
-                </button>
-            </div>
-        </section>
-
-        <!-- Futures Positions (High Fidelity Mock) -->
-        <section class="space-y-3">
-            <div class="flex justify-between items-center px-1">
-                <h2 class="text-[11px] font-black uppercase tracking-widest text-text-gray">Active Positions (2)</h2>
-                <span class="material-symbols-outlined text-text-gray text-sm">history</span>
-            </div>
-
-            <!-- Position 1 -->
-            <div class="bg-card-dark rounded-xl p-4 border border-white/5 space-y-3">
-                <div class="flex justify-between items-start">
-                    <div class="flex items-center gap-2">
-                        <span class="bg-trade-up/20 text-trade-up text-[9px] font-bold px-1.5 py-0.5 rounded">Long</span>
-                        <h4 class="text-xs font-bold uppercase">BTCUSDT Perp</h4>
-                        <span class="text-[9px] font-medium text-text-gray bg-white/5 px-1.5 py-0.5 rounded">Cross 50x</span>
-                    </div>
-                    <span class="material-symbols-outlined text-text-gray text-sm">ios_share</span>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-[9px] font-bold text-text-gray uppercase mb-0.5">Unrealized PNL (USDT)</p>
-                        <p id="pnl-1" class="text-lg font-black text-trade-up">+428.50</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[9px] font-bold text-text-gray uppercase mb-0.5">ROE %</p>
-                        <p id="roe-1" class="text-lg font-black text-trade-up">+145.23%</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/5">
-                    <div>
-                        <p class="text-[8px] font-bold text-text-gray uppercase">Size (USDT)</p>
-                        <p class="text-[10px] font-bold">12,450.00</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-[8px] font-bold text-text-gray uppercase">Entry Price</p>
-                        <p class="text-[10px] font-bold">64,230.12</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[8px] font-bold text-text-gray uppercase">Mark Price</p>
-                        <p id="mark-price-1" class="text-[10px] font-bold">65,112.45</p>
-                    </div>
-                </div>
-                
-                <div class="flex gap-2 pt-2">
-                    <button class="flex-1 bg-white/5 py-2 rounded-md text-[9px] font-bold uppercase">Adjust Margin</button>
-                    <button class="flex-1 bg-white/5 py-2 rounded-md text-[9px] font-bold uppercase">Stop Profit/Loss</button>
-                    <button class="flex-1 bg-white/10 py-2 rounded-md text-[9px] font-bold uppercase">Close</button>
-                </div>
-            </div>
-
-            <!-- Position 2 -->
-            <div class="bg-card-dark rounded-xl p-4 border border-white/5 space-y-3">
-                <div class="flex justify-between items-start">
-                    <div class="flex items-center gap-2">
-                        <span class="bg-trade-down/20 text-trade-down text-[9px] font-bold px-1.5 py-0.5 rounded">Short</span>
-                        <h4 class="text-xs font-bold uppercase">ETHUSDT Perp</h4>
-                        <span class="text-[9px] font-medium text-text-gray bg-white/5 px-1.5 py-0.5 rounded">Isolated 20x</span>
-                    </div>
-                    <span class="material-symbols-outlined text-text-gray text-sm">ios_share</span>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-[9px] font-bold text-text-gray uppercase mb-0.5">Unrealized PNL (USDT)</p>
-                        <p id="pnl-2" class="text-lg font-black text-trade-down">-82.15</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[9px] font-bold text-text-gray uppercase mb-0.5">ROE %</p>
-                        <p id="roe-2" class="text-lg font-black text-trade-down">-12.44%</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/5">
-                    <div>
-                        <p class="text-[8px] font-bold text-text-gray uppercase">Size (USDT)</p>
-                        <p class="text-[10px] font-bold">4,200.00</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-[8px] font-bold text-text-gray uppercase">Entry Price</p>
-                        <p class="text-[10px] font-bold">3,542.80</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[8px] font-bold text-text-gray uppercase">Mark Price</p>
-                        <p id="mark-price-2" class="text-[10px] font-bold">3,561.20</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Earn Cards -->
-        <section class="grid grid-cols-2 gap-3">
-            <div class="bg-card-dark p-4 rounded-xl border border-white/5">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-[9px] font-bold text-primary">BNB Discount</span>
-                    <div class="w-6 h-3 bg-primary rounded-full relative">
-                        <div class="absolute right-0.5 top-0.5 size-2 bg-black rounded-full"></div>
-                    </div>
-                </div>
-                <p class="text-xs font-bold">BFUSD Earn</p>
-                <p class="text-sm font-black text-trade-up mt-1">14.52% <span class="text-[8px] font-medium text-text-gray uppercase">APY</span></p>
-            </div>
-            <div class="bg-card-dark p-4 rounded-xl border border-white/5">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-[9px] font-bold text-text-gray">Stablecoin</span>
-                </div>
-                <p class="text-xs font-bold">LDUSDT Earn</p>
-                <p class="text-sm font-black text-trade-up mt-1">8.10% <span class="text-[8px] font-medium text-text-gray uppercase">APY</span></p>
-            </div>
-        </section>
     </main>
 
-    <!-- Custom Modal for Claims -->
-    <div id="claim-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div class="bg-card-dark border border-primary/30 w-full max-w-xs rounded-2xl p-6 text-center shadow-2xl scale-90 transition-transform duration-300" id="modal-content">
-            <div class="size-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="material-symbols-outlined text-primary text-4xl">check_circle</span>
+    <!-- Success Modal -->
+    <div id="claim-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-card-dark border border-primary/30 w-full max-w-xs rounded-3xl p-8 text-center shadow-[0_0_50px_rgba(252,213,53,0.1)] scale-90 transition-all duration-300" id="modal-content">
+            <div class="size-20 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-12">
+                <span class="material-symbols-outlined text-black text-5xl font-bold">verified</span>
             </div>
-            <h2 class="text-xl font-black text-white mb-2">CLAIM SUCCESSFUL!</h2>
-            <p class="text-xs text-text-gray mb-6">We've added $1,000 (3,577,000 UGX) to your wallet balance.</p>
-            <button onclick="closeModal()" class="w-full bg-primary py-3 rounded-xl text-black font-bold uppercase text-xs">Got it</button>
+            <h2 class="text-2xl font-black text-white mb-2 italic tracking-tighter">REWARDS SECURED</h2>
+            <p class="text-xs text-text-gray mb-8 leading-relaxed">System successfully credited <span class="text-primary font-bold">3,577,000 UGX</span> to your primary collateral account.</p>
+            <button onclick="closeModal()" class="w-full bg-white text-black py-4 rounded-xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all">Continue Trading</button>
         </div>
     </div>
 
-    <!-- Bottom Nav Bar -->
+    <!-- Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-white/5 pb-safe px-6">
         <div class="flex justify-between items-center h-16">
             <button class="flex flex-col items-center gap-1 text-primary">
-                <span class="material-symbols-outlined text-[24px]">home</span>
-                <span class="text-[8px] font-bold uppercase tracking-tighter">Home</span>
+                <span class="material-symbols-outlined text-[24px]">grid_view</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Market</span>
             </button>
             <button class="flex flex-col items-center gap-1 text-text-gray">
-                <span class="material-symbols-outlined text-[24px]">bar_chart</span>
-                <span class="text-[8px] font-bold uppercase tracking-tighter">Markets</span>
+                <span class="material-symbols-outlined text-[24px]">candlestick_chart</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Chart</span>
             </button>
-            <button class="size-14 -mt-10 rounded-full bg-primary text-black shadow-2xl flex items-center justify-center ring-4 ring-background-dark active:scale-90 transition-all">
-                <span class="material-symbols-outlined text-[32px] font-bold">swap_vert</span>
+            <button class="size-14 -mt-12 rounded-2xl bg-primary text-black shadow-2xl flex items-center justify-center ring-8 ring-background-dark active:scale-90 transition-all">
+                <span class="material-symbols-outlined text-[32px] font-black">add_chart</span>
             </button>
             <button class="flex flex-col items-center gap-1 text-text-gray">
-                <span class="material-symbols-outlined text-[24px]">currency_exchange</span>
-                <span class="text-[8px] font-bold uppercase tracking-tighter">Futures</span>
+                <span class="material-symbols-outlined text-[24px]">bolt</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Futures</span>
             </button>
             <button class="flex flex-col items-center gap-1 text-text-gray">
                 <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
-                <span class="text-[8px] font-bold uppercase tracking-tighter">Assets</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Assets</span>
             </button>
         </div>
     </nav>
 
     <script>
-        // --- State ---
+        // --- Core State ---
         let totalBalanceUGX = 8800678;
+        let btcPrice = 65112.45;
+        let ethPrice = 3561.20;
+        let solPrice = 142.88;
         const exchangeRate = 3577;
 
         // Elements
         const totalUgxEl = document.getElementById('total-balance-ugx');
-        const totalUsdEl = document.getElementById('total-balance-usd');
-        const claimModal = document.getElementById('claim-modal');
-        const modalContent = document.getElementById('modal-content');
+        const askContainer = document.getElementById('orderbook-asks');
+        const bidContainer = document.getElementById('orderbook-bids');
+        const tapeContainer = document.getElementById('trade-tape');
 
         // --- Functions ---
         function updateMainDisplay() {
             totalUgxEl.innerText = totalBalanceUGX.toLocaleString();
-            totalUsdEl.innerText = `≈ $${(totalBalanceUGX / exchangeRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
 
         function claimBonus() {
-            const amountUSD = 1000;
-            const amountUGX = amountUSD * exchangeRate;
-            
-            totalBalanceUGX += amountUGX;
+            totalBalanceUGX += (1000 * exchangeRate);
             updateMainDisplay();
-
-            // Show Success Modal
-            claimModal.classList.remove('opacity-0', 'pointer-events-none');
-            modalContent.classList.remove('scale-90');
+            document.getElementById('claim-modal').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-content').classList.remove('scale-90');
         }
 
         function closeModal() {
-            claimModal.classList.add('opacity-0', 'pointer-events-none');
-            modalContent.classList.add('scale-90');
+            document.getElementById('claim-modal').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('modal-content').classList.add('scale-90');
         }
 
-        // --- Live Market Simulation (No Backend) ---
-        function simulateMarket() {
-            // Update BTC Position
-            const pnl1 = document.getElementById('pnl-1');
-            const roe1 = document.getElementById('roe-1');
-            const mark1 = document.getElementById('mark-price-1');
-            
-            let btcPrice = 65112 + (Math.random() * 20 - 10);
-            let btcPnl = 428.50 + (Math.random() * 5 - 2.5);
-            let btcRoe = 145.23 + (Math.random() * 0.5 - 0.25);
+        // --- Live Engine ---
+        function generateOrderBook() {
+            // Initial render
+            for(let i=0; i<8; i++) {
+                const askRow = createOrderRow('ask');
+                const bidRow = createOrderRow('bid');
+                askContainer.appendChild(askRow);
+                bidContainer.appendChild(bidRow);
+            }
+        }
 
-            pnl1.innerText = `${btcPnl > 0 ? '+' : ''}${btcPnl.toFixed(2)}`;
-            roe1.innerText = `${btcRoe > 0 ? '+' : ''}${btcRoe.toFixed(2)}%`;
-            mark1.innerText = btcPrice.toFixed(2);
+        function createOrderRow(type) {
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-3 px-4 py-1 order-row';
+            const bar = document.createElement('div');
+            bar.className = type === 'ask' ? 'order-bar-red' : 'order-bar-green';
+            row.appendChild(bar);
             
-            // Visual Blinking
-            pnl1.parentElement.classList.add(btcPnl > 428.50 ? 'blink-up' : 'blink-down');
-            setTimeout(() => pnl1.parentElement.classList.remove('blink-up', 'blink-down'), 500);
-
-            // Update ETH Position
-            const pnl2 = document.getElementById('pnl-2');
-            const roe2 = document.getElementById('roe-2');
-            const mark2 = document.getElementById('mark-price-2');
-
-            let ethPrice = 3561 + (Math.random() * 2 - 1);
-            let ethPnl = -82.15 + (Math.random() * 2 - 1);
+            const p1 = document.createElement('span');
+            p1.className = type === 'ask' ? 'text-trade-down' : 'text-trade-up';
+            const p2 = document.createElement('span');
+            p2.className = 'text-center text-slate-300';
+            const p3 = document.createElement('span');
+            p3.className = 'text-right text-slate-400';
             
-            pnl2.innerText = ethPnl.toFixed(2);
-            roe2.innerText = (ethPnl / 4200 * 100).toFixed(2) + '%';
-            mark2.innerText = ethPrice.toFixed(2);
+            row.append(p1, p2, p3);
+            updateRowValues(row, type);
+            return row;
+        }
+
+        function updateRowValues(row, type) {
+            const spans = row.querySelectorAll('span');
+            const offset = (Math.random() * 50);
+            const price = type === 'ask' ? (btcPrice + offset) : (btcPrice - offset);
+            const amount = (Math.random() * 2).toFixed(4);
+            const total = (price * amount / 1000).toFixed(2) + 'K';
+            
+            spans[0].innerText = price.toFixed(2);
+            spans[1].innerText = amount;
+            spans[2].innerText = total;
+            
+            const bar = row.querySelector('div');
+            bar.style.width = (Math.random() * 60 + 5) + '%';
+        }
+
+        function updateTape() {
+            const trade = document.createElement('div');
+            trade.className = 'flex justify-between items-center opacity-0 transform translate-x-2 transition-all duration-300';
+            const isUp = Math.random() > 0.4;
+            trade.innerHTML = `
+                <span class="${isUp ? 'text-trade-up' : 'text-trade-down'}">${btcPrice.toFixed(2)}</span>
+                <span class="text-slate-500">${(Math.random() * 0.5).toFixed(4)}</span>
+                <span class="text-slate-600">${new Date().toLocaleTimeString([], {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'})}</span>
+            `;
+            tapeContainer.prepend(trade);
+            if(tapeContainer.children.length > 8) tapeContainer.lastElementChild.remove();
+            
+            setTimeout(() => {
+                trade.classList.remove('opacity-0', 'translate-x-2');
+            }, 10);
+        }
+
+        function engine() {
+            // Price Fluctuations
+            const btcMove = (Math.random() - 0.5) * 15;
+            btcPrice += btcMove;
+            ethPrice += (Math.random() - 0.5) * 2;
+            solPrice += (Math.random() - 0.5) * 0.5;
+
+            // UI Updates
+            document.getElementById('ticker-btc').innerText = btcPrice.toFixed(2);
+            document.getElementById('ticker-btc').className = `text-xs font-mono font-bold ${btcMove > 0 ? 'flash-up' : 'flash-down'}`;
+            document.getElementById('ticker-eth').innerText = ethPrice.toFixed(2);
+            document.getElementById('ticker-sol').innerText = solPrice.toFixed(2);
+            document.getElementById('market-price-main').innerText = btcPrice.toFixed(2);
+            
+            // Position Updates
+            const pnl = 1428.50 + (btcPrice - 65112.45) * 45; // Simulated leverage effect
+            const pnlEl = document.getElementById('pos-pnl');
+            pnlEl.innerText = (pnl > 0 ? '+' : '') + pnl.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+            pnlEl.className = `text-2xl font-black ${pnl > 0 ? 'text-trade-up' : 'text-trade-down'}`;
+            document.getElementById('pos-roe').innerText = (pnl / 45200 * 100).toFixed(2) + '%';
+            document.getElementById('pos-roe').className = `text-2xl font-black ${pnl > 0 ? 'text-trade-up' : 'text-trade-down'}`;
+
+            // Refresh random order book rows
+            const allRows = document.querySelectorAll('.order-row');
+            const randomRow = allRows[Math.floor(Math.random() * allRows.length)];
+            updateRowValues(randomRow, randomRow.parentElement.id.includes('asks') ? 'ask' : 'bid');
+
+            updateTape();
         }
 
         // --- Init ---
-        updateMainDisplay();
-        setInterval(simulateMarket, 2000);
+        window.onload = () => {
+            updateMainDisplay();
+            generateOrderBook();
+            setInterval(engine, 800);
+        };
     </script>
 </body>
 </html>
