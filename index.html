@@ -55,21 +55,13 @@
 
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
         
-        /* High-speed animations for ticks */
         @keyframes tick-up { 0% { background: rgba(14, 203, 129, 0.2); } 100% { background: transparent; } }
         @keyframes tick-down { 0% { background: rgba(246, 70, 93, 0.2); } 100% { background: transparent; } }
         .flash-up { animation: tick-up 0.4s ease-out; }
         .flash-down { animation: tick-down 0.4s ease-out; }
 
-        /* Custom Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .verification-badge {
-            background: linear-gradient(90deg, #FCD535 0%, #f7b500 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
 
         .profile-ring {
             position: relative;
@@ -90,6 +82,14 @@
             right: 0;
             height: 2px;
             background: #FCD535;
+        }
+        .currency-btn {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .currency-btn.active {
+            background: #FCD535;
+            color: #000;
         }
     </style>
 </head>
@@ -118,11 +118,18 @@
 
             <!-- Global Balance -->
             <div class="flex flex-col">
-                <span class="text-[9px] font-bold text-text-gray uppercase tracking-widest leading-none mb-1">Total Equity</span>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[9px] font-bold text-text-gray uppercase tracking-widest leading-none">Total Equity</span>
+                    <div class="flex gap-1 bg-white/5 p-0.5 rounded">
+                        <button onclick="setCurrency('UGX')" id="btn-ugx" class="currency-btn active text-[8px] px-1 rounded font-bold uppercase">UGX</button>
+                        <button onclick="setCurrency('USD')" id="btn-usd" class="currency-btn text-[8px] px-1 rounded font-bold uppercase">USD</button>
+                        <button onclick="setCurrency('JPY')" id="btn-jpy" class="currency-btn text-[8px] px-1 rounded font-bold uppercase">JPY</button>
+                    </div>
+                </div>
                 <div class="flex items-baseline gap-1.5">
-                    <span class="text-xs font-black text-primary">UGX</span>
-                    <span id="total-balance-ugx" class="text-lg font-black tracking-tight">8,800,678</span>
-                    <span class="text-[10px] text-trade-up font-bold bg-trade-up/10 px-1 rounded ml-1">+$42.10</span>
+                    <span id="current-currency-label" class="text-xs font-black text-primary">UGX</span>
+                    <span id="total-balance-display" class="text-lg font-black tracking-tight">8,800,678</span>
+                    <span id="balance-trend" class="text-[10px] text-trade-up font-bold bg-trade-up/10 px-1 rounded ml-1">+$0.00</span>
                 </div>
             </div>
         </div>
@@ -152,7 +159,7 @@
                 <div class="premium-card rounded-xl p-3">
                     <div class="flex justify-between items-start">
                         <span class="text-[10px] font-bold text-text-gray">BTC / USDT</span>
-                        <span class="text-[9px] text-trade-up font-bold">+2.45%</span>
+                        <span id="btc-perc" class="text-[9px] text-trade-up font-bold">+2.45%</span>
                     </div>
                     <div id="ticker-btc" class="text-md font-mono font-bold mt-1 text-white">65,112.45</div>
                 </div>
@@ -200,7 +207,7 @@
                     <div class="bg-background-dark/80 py-4 px-4 border-y border-white/5 flex items-center justify-between">
                         <div>
                             <span id="market-price-main" class="text-2xl font-black text-trade-up tracking-tighter">65,112.45</span>
-                            <div class="text-[10px] text-text-gray mt-[-4px]">≈ $65,112.45</div>
+                            <div id="market-price-alt" class="text-[10px] text-text-gray mt-[-4px]">≈ $65,112.45</div>
                         </div>
                         <div class="text-right">
                             <div class="text-[10px] font-bold text-trade-up">Spread 0.01%</div>
@@ -216,7 +223,7 @@
                     
                     <!-- REAL POSITIONS CARD -->
                     <div class="premium-card rounded-2xl p-6 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <div id="pnl-bg-icon" class="absolute top-0 right-0 p-4 opacity-10 transition-colors">
                             <span class="material-symbols-outlined text-6xl">trending_up</span>
                         </div>
                         
@@ -241,7 +248,7 @@
 
                         <div class="grid grid-cols-2 gap-8 mb-6">
                             <div class="space-y-1">
-                                <p class="text-[10px] font-bold text-text-gray uppercase tracking-widest">Unrealized PNL (UGX)</p>
+                                <p class="text-[10px] font-bold text-text-gray uppercase tracking-widest">Unrealized PNL (<span class="currency-label">UGX</span>)</p>
                                 <div class="flex items-baseline gap-2">
                                     <p id="pos-pnl" class="text-4xl font-black text-trade-up tracking-tighter">+1,428,500</p>
                                 </div>
@@ -263,13 +270,19 @@
                             </div>
                             <div class="text-right">
                                 <p class="text-[9px] font-bold text-text-gray uppercase">Margin</p>
-                                <p class="text-xs font-mono font-bold">0.42 BTC</p>
+                                <p id="pos-margin-val" class="text-xs font-mono font-bold">0.42 BTC</p>
                             </div>
                         </div>
                         
+                        <!-- QUICK TRADE PANEL -->
+                        <div class="grid grid-cols-2 gap-3 mt-6">
+                            <button onclick="executeTrade('BUY')" class="bg-trade-up hover:bg-emerald-600 text-black py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-trade-up/20 active:scale-95">Buy / Long</button>
+                            <button onclick="executeTrade('SELL')" class="bg-trade-down hover:bg-rose-600 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-trade-down/20 active:scale-95">Sell / Short</button>
+                        </div>
+
                         <div class="flex gap-3 mt-4">
                             <button class="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Close Position</button>
-                            <button class="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Take Profit/Stop Loss</button>
+                            <button class="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">TP / SL</button>
                         </div>
                     </div>
 
@@ -327,7 +340,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-mono font-bold text-trade-up">65,112.45</span>
+                    <span id="chart-ticker-price" class="text-[10px] font-mono font-bold text-trade-up">65,112.45</span>
                 </div>
             </div>
 
@@ -342,11 +355,11 @@
             <div class="grid grid-cols-4 px-4 py-4 border-t border-white/5 bg-card-dark/50">
                 <div>
                     <p class="text-[8px] font-black text-text-gray uppercase tracking-widest mb-1">24h High</p>
-                    <p class="text-xs font-mono font-bold">66,420.00</p>
+                    <p id="stat-high" class="text-xs font-mono font-bold">66,420.00</p>
                 </div>
                 <div>
                     <p class="text-[8px] font-black text-text-gray uppercase tracking-widest mb-1">24h Low</p>
-                    <p class="text-xs font-mono font-bold text-trade-down">63,110.45</p>
+                    <p id="stat-low" class="text-xs font-mono font-bold text-trade-down">63,110.45</p>
                 </div>
                 <div>
                     <p class="text-[8px] font-black text-text-gray uppercase tracking-widest mb-1">24h Volume</p>
@@ -367,8 +380,8 @@
                 <span class="material-symbols-outlined text-black text-4xl font-black">done_all</span>
             </div>
             <div class="mt-4">
-                <h2 class="text-2xl font-black text-white mb-2 italic tracking-tighter uppercase">Verified Payout</h2>
-                <p class="text-xs text-text-gray mb-8 px-4 leading-relaxed">System successfully credited <span class="text-primary font-bold">3,577,000 UGX</span> to Ephi Shawik's margin wallet.</p>
+                <h2 id="modal-title" class="text-2xl font-black text-white mb-2 italic tracking-tighter uppercase">Verified Payout</h2>
+                <p id="modal-body" class="text-xs text-text-gray mb-8 px-4 leading-relaxed">System successfully credited <span class="text-primary font-bold">3,577,000 UGX</span> to Ephi Shawik's margin wallet.</p>
                 <button onclick="closeModal()" class="w-full bg-primary hover:bg-primary-hover text-black py-4 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all shadow-lg shadow-primary/20">Resume Terminal</button>
             </div>
         </div>
@@ -401,19 +414,35 @@
 
     <script>
         // --- Core State Management ---
-        let totalBalanceUGX = 8800678;
+        let baseEquityUSD = 2460.35; // The "real" starting anchor in USD
+        let currentCurrency = 'UGX';
+        const rates = { UGX: 3577, USD: 1, JPY: 151.24 };
+        
         let btcPrice = 65112.45;
         let lastBtcPrice = 65112.45;
-        const exchangeRate = 3577;
-        let activeView = 'market';
+        let entryPrice = 64210.00;
+        let positionSize = 0.42; // BTC
         
+        let activeView = 'market';
         let candles = [];
-        const MAX_CANDLES = 100;
+        const MAX_CANDLES = 80;
         let lastCandleTime = 0;
 
-        const totalUgxEl = document.getElementById('total-balance-ugx');
+        // Elements
+        const balanceDisplay = document.getElementById('total-balance-display');
+        const balanceTrend = document.getElementById('balance-trend');
+        const currencyLabel = document.getElementById('current-currency-label');
         const canvas = document.getElementById('main-chart');
         const ctx = canvas.getContext('2d');
+
+        function setCurrency(ccy) {
+            currentCurrency = ccy;
+            document.querySelectorAll('.currency-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${ccy.toLowerCase()}`).classList.add('active');
+            currencyLabel.innerText = ccy;
+            document.querySelectorAll('.currency-label').forEach(el => el.innerText = ccy);
+            updateBalanceUI();
+        }
 
         function switchView(view) {
             activeView = view;
@@ -437,8 +466,22 @@
         }
 
         function claimBonus() {
-            totalBalanceUGX += (1000 * exchangeRate);
-            totalUgxEl.innerText = totalBalanceUGX.toLocaleString();
+            const bonusUSD = 1000;
+            baseEquityUSD += bonusUSD;
+            showModal("Bonus Claimed", `Successfully credited ${ (bonusUSD * rates[currentCurrency]).toLocaleString() } ${currentCurrency} to your account.`);
+            updateBalanceUI();
+        }
+
+        function executeTrade(type) {
+            entryPrice = btcPrice;
+            positionSize = 0.5; // Update position
+            document.getElementById('pos-margin-val').innerText = positionSize + " BTC";
+            showModal("Order Executed", `Market ${type} order for 0.50 BTC filled at ${btcPrice.toFixed(2)}`);
+        }
+
+        function showModal(title, body) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerText = body;
             document.getElementById('claim-modal').classList.remove('opacity-0', 'pointer-events-none');
         }
 
@@ -446,19 +489,39 @@
             document.getElementById('claim-modal').classList.add('opacity-0', 'pointer-events-none');
         }
 
-        function updateOrderBook() {
-            const asks = document.getElementById('orderbook-asks');
-            const bids = document.getElementById('orderbook-bids');
-            asks.innerHTML = '';
-            bids.innerHTML = '';
+        function updateBalanceUI() {
+            // Unrealized PNL in USD
+            const uPnlUSD = (btcPrice - entryPrice) * positionSize;
+            const totalEquityUSD = baseEquityUSD + uPnlUSD;
+            const convertedBalance = totalEquityUSD * rates[currentCurrency];
+            
+            balanceDisplay.innerText = convertedBalance.toLocaleString(undefined, {
+                maximumFractionDigits: currentCurrency === 'USD' ? 2 : 0
+            });
 
-            for(let i=0; i<12; i++) {
-                asks.appendChild(createRow('ask', btcPrice + (12-i)*0.85));
-                bids.appendChild(createRow('bid', btcPrice - (i+1)*0.85));
+            const trendVal = uPnlUSD * rates[currentCurrency];
+            balanceTrend.innerText = (trendVal >= 0 ? '+$' : '-$') + Math.abs(trendVal).toFixed(2);
+            balanceTrend.className = `text-[10px] font-bold px-1 rounded ml-1 ${trendVal >= 0 ? 'text-trade-up bg-trade-up/10' : 'text-trade-down bg-trade-down/10'}`;
+
+            // Update PNL Section
+            const pnlEl = document.getElementById('pos-pnl');
+            if(pnlEl) {
+                const displayPnl = uPnlUSD * rates[currentCurrency];
+                pnlEl.innerText = (displayPnl >= 0 ? '+' : '') + displayPnl.toLocaleString(undefined, {maximumFractionDigits: 0});
+                pnlEl.className = `text-4xl font-black tracking-tighter ${displayPnl >= 0 ? 'text-trade-up' : 'text-trade-down'}`;
+                
+                const roe = ((uPnlUSD / (entryPrice * positionSize / 100)) * 100).toFixed(2);
+                const roeEl = document.getElementById('pos-roe');
+                roeEl.innerText = (roe >= 0 ? '+' : '') + roe + '%';
+                roeEl.className = `text-4xl font-black tracking-tighter ${roe >= 0 ? 'text-trade-up' : 'text-trade-down'}`;
+
+                const icon = document.getElementById('pnl-bg-icon');
+                icon.className = `absolute top-0 right-0 p-4 opacity-10 transition-colors ${displayPnl >= 0 ? 'text-trade-up' : 'text-trade-down'}`;
+                icon.innerHTML = `<span class="material-symbols-outlined text-6xl">${displayPnl >= 0 ? 'trending_up' : 'trending_down'}</span>`;
             }
         }
 
-        function createRow(type, price) {
+        function createOrderBookRow(type, price) {
             const row = document.createElement('div');
             row.className = 'grid grid-cols-3 px-4 py-[3px] relative overflow-hidden group hover:bg-white/[0.03] transition-colors';
             const size = (Math.random() * 0.8 + 0.1).toFixed(3);
@@ -475,14 +538,26 @@
             return row;
         }
 
+        function updateOrderBook() {
+            const asks = document.getElementById('orderbook-asks');
+            const bids = document.getElementById('orderbook-bids');
+            if(!asks || !bids) return;
+            asks.innerHTML = '';
+            bids.innerHTML = '';
+
+            for(let i=0; i<12; i++) {
+                asks.appendChild(createOrderBookRow('ask', btcPrice + (12-i)*0.85));
+                bids.appendChild(createOrderBookRow('bid', btcPrice - (i+1)*0.85));
+            }
+        }
+
         function initCandles() {
             let base = 65000;
             for(let i=0; i<MAX_CANDLES; i++) {
                 const open = base + (Math.random() - 0.5) * 60;
                 const close = open + (Math.random() - 0.5) * 80;
                 candles.push({
-                    open,
-                    close,
+                    open, close,
                     high: Math.max(open, close) + Math.random() * 20,
                     low: Math.min(open, close) - Math.random() * 20
                 });
@@ -491,7 +566,7 @@
         }
 
         function resizeChart() {
-            if (!canvas) return;
+            if (!canvas || activeView !== 'chart') return;
             const container = document.getElementById('chart-container');
             canvas.width = container.clientWidth * window.devicePixelRatio;
             canvas.height = container.clientHeight * window.devicePixelRatio;
@@ -515,11 +590,11 @@
 
             const getY = (p) => h - ((p - min) / range) * (h - 80) - 40;
 
-            // Grid Lines
+            // Grid
             ctx.strokeStyle = 'rgba(255,255,255,0.04)';
             ctx.lineWidth = 1;
-            for(let i=1; i<6; i++) {
-                const y = (h/6) * i;
+            for(let i=1; i<8; i++) {
+                const y = (h/8) * i;
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
             }
 
@@ -541,7 +616,6 @@
                 ctx.fillRect(x, Math.min(y1, y2), cw, Math.max(Math.abs(y1 - y2), 1));
             });
 
-            // Price Line
             const lastY = getY(btcPrice);
             ctx.setLineDash([4, 4]);
             ctx.strokeStyle = 'rgba(255,255,255,0.3)';
@@ -555,46 +629,50 @@
         }
 
         function updateData() {
-            const delta = (Math.random() - 0.5) * 15;
+            const delta = (Math.random() - 0.5) * 25;
             lastBtcPrice = btcPrice;
             btcPrice += delta;
             
-            // Global Headers
+            // Header
             const hp = document.getElementById('header-price');
             hp.innerText = btcPrice.toFixed(2);
-            hp.className = `text-sm font-mono font-bold transition-colors ${delta > 0 ? 'text-trade-up flash-up' : 'text-trade-down flash-down'}`;
+            hp.className = `text-sm font-mono font-bold ${delta > 0 ? 'text-trade-up' : 'text-trade-down'}`;
 
-            // Dashboard
+            // Dash
             const mpm = document.getElementById('market-price-main');
             if (mpm) {
                 mpm.innerText = btcPrice.toFixed(2);
-                mpm.className = `text-2xl font-black tracking-tighter transition-colors ${delta > 0 ? 'text-trade-up' : 'text-trade-down'}`;
-            }
-
-            // PNL Calculation
-            const pnlValue = 1428500 + (btcPrice - 64210) * 850;
-            const roe = ((pnlValue / 420000) * 100).toFixed(2);
-            
-            const pnlEl = document.getElementById('pos-pnl');
-            if (pnlEl) {
-                pnlEl.innerText = (pnlValue > 0 ? '+' : '') + Math.floor(pnlValue).toLocaleString();
-                document.getElementById('pos-roe').innerText = (pnlValue > 0 ? '+' : '') + roe + '%';
-                document.getElementById('pos-mark').innerText = btcPrice.toFixed(2);
+                mpm.className = `text-2xl font-black tracking-tighter ${delta > 0 ? 'text-trade-up' : 'text-trade-down'}`;
+                document.getElementById('market-price-alt').innerText = `≈ $${btcPrice.toLocaleString()}`;
                 document.getElementById('ticker-btc').innerText = btcPrice.toFixed(2);
+                document.getElementById('pos-mark').innerText = btcPrice.toFixed(2);
+                
+                const btcPerc = document.getElementById('btc-perc');
+                const p = ((btcPrice - 63500) / 63500 * 100).toFixed(2);
+                btcPerc.innerText = (p >= 0 ? '+' : '') + p + '%';
+                btcPerc.className = `text-[9px] font-bold ${p >= 0 ? 'text-trade-up' : 'text-trade-down'}`;
             }
 
-            // New Candle Logic
+            // Stats
+            if(activeView === 'chart') {
+                document.getElementById('chart-ticker-price').innerText = btcPrice.toFixed(2);
+                document.getElementById('stat-high').innerText = Math.max(btcPrice + 200, 66420).toFixed(2);
+                document.getElementById('stat-low').innerText = Math.min(btcPrice - 150, 63110).toFixed(2);
+            }
+
+            // Candle Update
             const lastCandle = candles[candles.length - 1];
             lastCandle.close = btcPrice;
             if(btcPrice > lastCandle.high) lastCandle.high = btcPrice;
             if(btcPrice < lastCandle.low) lastCandle.low = btcPrice;
 
-            if(Date.now() - lastCandleTime > 5000) {
+            if(Date.now() - lastCandleTime > 3000) {
                 candles.push({open: btcPrice, close: btcPrice, high: btcPrice, low: btcPrice});
                 if(candles.length > MAX_CANDLES) candles.shift();
                 lastCandleTime = Date.now();
             }
 
+            updateBalanceUI();
             if(activeView === 'market') updateOrderBook();
             if(activeView === 'chart') drawChart();
         }
@@ -602,9 +680,9 @@
         window.onload = () => {
             initCandles();
             lastCandleTime = Date.now();
-            totalUgxEl.innerText = totalBalanceUGX.toLocaleString();
+            setCurrency('UGX');
             window.addEventListener('resize', resizeChart);
-            setInterval(updateData, 600);
+            setInterval(updateData, 400);
             resizeChart();
         };
     </script>
